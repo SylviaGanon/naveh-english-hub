@@ -1,518 +1,326 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nave's CVC Vowel Explorer 🔤</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Canvas Confetti CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Rubik:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Rubik', sans-serif;
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            touch-action: manipulation;
-        }
-        .font-fredoka {
-            font-family: 'Fredoka', sans-serif;
-        }
-        .vowel-btn {
-            transition: all 0.15s ease-in-out;
-            box-shadow: 0 4px 0px rgba(0,0,0,0.15);
-        }
-        .vowel-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0px rgba(0,0,0,0.15);
-        }
-        .vowel-btn.selected {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0px rgba(0,0,0,0.2);
-        }
-        .img-pop {
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes popIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>החלפת תנועות - נווה</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Nave English Hub - shared style. Clean, minimal, phone first, scales up for desktop. */
+:root{--ink:#12263a;--mute:#64748b;--line:#e2e8f0;--bg:#f6f9fc;--blue:#0369a1;--blue-l:#e6f2fa;--ok:#15803d;--ok-l:#dcfce7;--bad:#b91c1c;--bad-l:#fee2e2;--sun:#f5b700}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Rubik',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;min-height:100dvh;touch-action:manipulation}
+button,select,input{font-family:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.en,.en2,.pw{font-family:'Fredoka','Rubik',sans-serif;direction:ltr}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+
+/* Page frame */
+.wrap{max-width:560px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right)) calc(110px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.wrap.plain{padding-bottom:40px}
+h1{font-size:1.7rem;margin:6px 0 16px}
+h3{font-size:1rem;color:var(--mute);font-weight:500;margin:24px 0 10px;display:flex;justify-content:space-between;align-items:baseline}
+h3 a{color:var(--blue);font-size:.9rem}
+.bar{display:flex;gap:8px;align-items:center;max-width:560px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
+.back,.teach{display:inline-flex;align-items:center;border:1px solid var(--line);background:#fff;border-radius:12px;min-height:44px;padding:0 14px;font-weight:500;color:var(--blue);font-size:.9rem;white-space:nowrap}
+.teach{color:var(--mute)}
+#voice{flex:1;min-width:0;min-height:44px;font-size:16px;border:1px solid var(--line);border-radius:12px;padding:0 10px;background:#fff;direction:ltr;color:var(--ink)}
+
+/* Home and index lists */
+.hero{display:block;width:100%;border:0;border-radius:22px;background:var(--blue);color:#fff;padding:22px;font-size:1.5rem;font-weight:700;text-align:start}
+.hero small{display:block;font-size:.9rem;font-weight:400;opacity:.85;margin-top:4px}
+.item{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:10px;font-size:1.05rem;font-weight:500;min-height:60px}
+.item small{color:var(--mute);font-weight:400;font-size:.9rem;text-align:end}
+.tag{background:var(--sun);color:#3d2e00;border-radius:99px;padding:2px 10px;font-size:.75rem;font-weight:700;margin-inline-start:8px}
+.empty{color:var(--mute);padding:12px 4px}
+
+/* Cards */
+.card{background:#fff;border:1px solid var(--line);border-radius:26px;padding:30px 20px;text-align:center;margin-top:12px}
+.cnt{color:var(--mute);font-size:.9rem;font-weight:500}
+.emo{font-size:4.2rem;line-height:1.2;margin-top:8px}
+.card .en{font-size:3.6rem;font-weight:600;color:var(--blue);margin:8px 0 2px;overflow-wrap:anywhere}
+.he{font-size:1.5rem;font-weight:500;margin:6px 0 10px}
+.he.big{font-size:2.2rem;font-weight:700}
+.sent{margin-top:14px;color:var(--mute);direction:ltr;font-size:1.05rem}
+.snd{width:56px;height:56px;border-radius:50%;border:2px solid var(--blue);background:#fff;font-size:1.4rem;margin-top:8px}
+.btn{display:block;width:100%;min-height:56px;border:0;border-radius:16px;background:var(--blue);color:#fff;font-size:1.15rem;font-weight:700;margin-top:12px}
+.btn:active{transform:translateY(2px)}
+.btn.alt{background:var(--blue-l);color:var(--blue)}
+.btn:disabled{opacity:.4}
+.lnk{display:block;margin:12px auto 0;border:0;background:none;color:var(--mute);font-size:.95rem;min-height:44px;padding:0 20px}
+.lnk:disabled{opacity:.35}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.opt{min-height:64px;border:2px solid var(--line);border-radius:16px;background:#fff;font-size:1.1rem;font-weight:500;padding:6px;color:var(--ink)}
+.opt.ok{background:var(--ok-l);border-color:var(--ok)}
+.opt.bad{background:var(--bad-l);border-color:var(--bad)}
+.ans{width:100%;min-height:60px;margin:16px 0 6px;font:600 1.7rem 'Fredoka',sans-serif;text-align:center;direction:ltr;border:2px solid var(--blue);border-radius:16px}
+.fb{min-height:1.5em;font-weight:500;color:var(--mute)}
+.fb.ok{color:var(--ok)}
+.fb.bad{color:var(--bad)}
+.row2{display:flex;align-items:center;justify-content:space-between;margin:0 2px}
+.sw{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--mute);min-height:44px;cursor:pointer}
+.sw input{position:absolute;opacity:0}
+.sw span{width:44px;height:26px;border-radius:99px;background:#cbd5e1;position:relative;transition:background .15s}
+.sw span::after{content:'';position:absolute;top:3px;inset-inline-start:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:inset-inline-start .15s}
+.sw input:checked+span{background:var(--ok)}
+.sw input:checked+span::after{inset-inline-start:21px}
+.sw input:focus-visible+span{outline:3px solid var(--sun)}
+.tap{min-height:230px;display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:pointer;margin-top:6px;width:100%;font:inherit;color:inherit}
+.hint{color:#94a3b8;font-size:.85rem;margin-top:14px;min-height:1.2em}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0 4px;direction:ltr}
+.chips span{background:var(--blue-l);color:var(--blue);border-radius:10px;padding:6px 12px;font-weight:600;font-family:'Fredoka',sans-serif}
+
+/* Bottom tabs (phone thumb reach) */
+.tabs{position:fixed;bottom:0;inset-inline:0;background:#fff;border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:4}
+.tabs div{display:flex;max-width:560px;margin:0 auto;gap:4px}
+.tabs button{flex:1;border:0;background:none;border-radius:14px;min-height:54px;font-size:.8rem;color:var(--mute);font-weight:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.tabs button b{font-size:1.2rem}
+.tabs button[aria-selected=true]{background:var(--blue-l);color:var(--blue)}
+
+/* Print chooser */
+.chooser{background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;margin-top:12px}
+.chooser h2{font-size:1.1rem}
+.chooser p{color:var(--mute);font-size:.9rem;margin:2px 0 12px}
+.plist{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.pick{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px;min-height:48px;font-size:.85rem;cursor:pointer}
+.pick input{width:20px;height:20px;accent-color:var(--blue);flex:none}
+.pick .en2{font-weight:600;font-size:1.1rem;color:var(--blue)}
+.pick span:last-child{color:var(--mute);margin-inline-start:auto;font-size:.8rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.two .btn{margin-top:0;min-height:48px;font-size:.95rem}
+
+/* The paper test. cqw = percent of the sheet width, so it looks the same on screen and on paper */
+.paper{container-type:inline-size;margin-top:18px}
+.sheet{--rh:9;background:#fff;border:.7cqw double #12263a;border-radius:2.5cqw;min-height:calc(100cqw*1.414);padding:6cqw 7cqw;display:flex;flex-direction:column;color:#000;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.sheet h2{font-size:6.5cqw;text-align:center}
+.sheet .sub{text-align:center;font-size:3.4cqw;margin:1cqw 0 4cqw;border-bottom:.4cqw solid #000;padding-bottom:3cqw}
+.fields{display:flex;gap:5cqw;font-size:3.6cqw;font-weight:700;margin-bottom:3cqw}
+.fields div{flex:1;display:flex;align-items:flex-end;gap:2cqw;white-space:nowrap}
+.fields i{flex:1;border-bottom:.35cqw solid #000;height:1em}
+.inst{font-size:3.2cqw;margin-bottom:3cqw}
+.rows{flex:1}
+.r{display:flex;align-items:flex-end;gap:2.5cqw;height:calc(var(--rh)*1cqw);font-size:calc(var(--rh)*.5cqw)}
+.r b{width:6cqw;font-weight:500;font-size:calc(var(--rh)*.38cqw);padding-bottom:.6cqw}
+.pw{width:26cqw;text-align:right;font-weight:600}
+.ln{flex:1;border-bottom:.35cqw solid #000;min-height:1.3em;font-size:calc(var(--rh)*.43cqw);font-weight:700;padding:0 2cqw;font-family:'Rubik',sans-serif}
+.score{font-size:3.6cqw;font-weight:700;padding-top:2cqw}
+
+@media (hover:hover){.btn:hover{filter:brightness(1.08)}.opt:hover:not(:disabled){border-color:var(--blue);background:var(--blue-l)}.item:hover{border-color:var(--blue)}.back:hover,.teach:hover{background:var(--blue-l)}.tabs button:hover{background:var(--blue-l)}}
+@media (max-width:360px){.card .en{font-size:2.9rem}.opt{font-size:1rem}.tabs button{font-size:.72rem}}
+@media (min-width:760px){.wrap,.bar,.tabs div{max-width:640px}h1{font-size:2rem}.card{padding:40px 28px}.card .en{font-size:4.4rem}.tap{min-height:280px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+@media print{
+  @page{size:A4;margin:10mm}
+  body{background:#fff}
+  .bar,.tabs,.chooser,.noprint{display:none!important}
+  .wrap{padding:0;max-width:none}
+  .paper{margin:0}
+  .sheet{box-shadow:none;min-height:calc(100cqw*1.414 - 2mm)}
+}
+
+/* Vowel pages */
+.slot{display:flex;justify-content:center;gap:.12em;font-size:4.6rem;font-weight:600;line-height:1.2;margin:6px 0}
+.slot .gap{min-width:.7em;border-bottom:4px dashed #cbd5e1;color:#cbd5e1}
+.slot .gap.ok{color:var(--blue);border-bottom:4px solid var(--blue)}
+.slot .gap.no{color:var(--bad);border-bottom:4px solid var(--bad)}
+.vows{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+.opt.vb{font:600 1.9rem 'Fredoka',sans-serif;min-height:68px}
+.opt.vb.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.bases{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.chip{min-height:44px;border:1px solid var(--line);border-radius:12px;background:#fff;font:600 1.05rem 'Fredoka',sans-serif;color:var(--ink)}
+.chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.center{text-align:center}
+@media (min-width:760px){.slot{font-size:5.6rem}.bases{grid-template-columns:repeat(6,1fr)}}
+
+</style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-between p-3 md:p-6 text-slate-800">
+<body>
+<div id="app"></div>
+<script>
+(function () {
+'use strict';
+  const store = {
+    get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+  const shuffle = a => { const r = [...a]; for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; } return r; };
+  const h = (tag, props, ...kids) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(props || {})) {
+      if (v === false || v == null) continue;
+      if (k === 'class') e.className = v;
+      else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v === true ? '' : v);
+    }
+    kids.flat().forEach(c => { if (c != null && c !== false) e.append(c); });
+    return e;
+  };
 
-    <!-- Back Navigation Bar -->
-    <div class="w-full max-w-2xl flex justify-start mb-2" dir="rtl">
-        <a href="index.html" class="inline-flex items-center gap-1 text-sky-700 font-bold bg-white px-3 py-1.5 rounded-xl border border-sky-200 shadow-sm hover:bg-sky-50 transition text-sm">
-            ➡️ חזרה למרכז
-        </a>
-    </div>
-
-    <!-- Header Section -->
-    <header class="w-full max-w-2xl text-center mb-3">
-        <div class="flex items-center justify-between bg-white px-4 py-2 rounded-2xl shadow-sm border border-sky-200 mb-2">
-            <span class="text-xs md:text-sm font-bold text-sky-700 bg-sky-100 px-3 py-1 rounded-full">
-                Vowel Explorer: Try A, E, I, O, U!
-            </span>
-            <div class="flex items-center gap-1 text-xs md:text-sm font-bold text-slate-600">
-                <span>🔊 Speed:</span>
-                <button onclick="setSpeed(0.6)" id="speedSlow" class="px-2 py-0.5 rounded border border-slate-300 hover:bg-slate-100">Slow</button>
-                <button onclick="setSpeed(0.85)" id="speedNorm" class="px-2 py-0.5 rounded bg-sky-500 text-white font-bold">Normal</button>
-            </div>
-        </div>
-        <h1 class="font-fredoka text-2xl md:text-4xl font-bold text-sky-600 tracking-wide">
-            CVC Vowel Picture Explorer 🔤
-        </h1>
-        <p class="text-xs md:text-sm text-slate-500 font-medium">
-            Change the vowel to see if it makes a REAL word with a picture!
-        </p>
-    </header>
-
-    <!-- Main Card Display -->
-    <main class="w-full max-w-2xl bg-white rounded-3xl p-5 md:p-6 shadow-xl border-4 border-sky-200 flex flex-col items-center relative">
-        
-        <!-- Top Controls / Progress -->
-        <div class="w-full flex items-center justify-between mb-3">
-            <button id="prevBtn" onclick="changeWord(-1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-sm md:text-base border border-slate-300 transition flex items-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed">
-                ⬅️ Prev
-            </button>
-            
-            <div class="text-center">
-                <span id="wordCounter" class="font-fredoka text-lg md:text-xl font-bold text-sky-600">Word 1 of 20</span>
-                <div id="vowelTag" class="text-xs font-semibold text-slate-400">Base: h _ t</div>
-            </div>
-
-            <button id="nextBtn" onclick="changeWord(1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-sm md:text-base border border-slate-300 transition flex items-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed">
-                Next ➡️
-            </button>
-        </div>
-
-        <!-- Big Word & Visual Illustration Box -->
-        <div class="w-full bg-gradient-to-b from-sky-50 to-blue-50 border-3 border-dashed border-sky-300 rounded-3xl p-4 md:p-6 mb-5 flex flex-col items-center justify-center relative shadow-inner min-h-[260px]">
-            
-            <!-- Picture Display Area -->
-            <div id="pictureContainer" class="mb-3 flex flex-col items-center justify-center h-32 w-full">
-                <!-- Dynamic Image or Empty Placeholder -->
-            </div>
-
-            <!-- Big Word Display Slot -->
-            <div id="wordDisplay" class="font-fredoka text-5xl md:text-7xl font-bold tracking-widest text-slate-800 flex items-center justify-center gap-2 md:gap-4 select-none">
-                <!-- Word letters dynamically generated here -->
-            </div>
-
-            <!-- Word Meaning & Status Box -->
-            <div id="meaningBox" class="mt-3 px-4 py-1.5 rounded-full text-sm md:text-base font-bold flex items-center gap-2">
-                <!-- Status & Hebrew meaning -->
-            </div>
-        </div>
-
-        <!-- Vowel Selection Buttons -->
-        <div class="w-full mb-5">
-            <div class="text-center text-xs md:text-sm font-bold text-slate-500 mb-2 uppercase tracking-wider">
-                Click a Vowel to Try It:
-            </div>
-            <div class="grid grid-cols-5 gap-2 md:gap-4 max-w-md mx-auto">
-                <button onclick="selectVowel('a')" id="btn-a" class="vowel-btn bg-amber-400 hover:bg-amber-300 text-amber-950 font-fredoka text-3xl md:text-4xl py-3 rounded-2xl font-bold border-2 border-amber-500">
-                    a
-                </button>
-                <button onclick="selectVowel('e')" id="btn-e" class="vowel-btn bg-rose-400 hover:bg-rose-300 text-rose-950 font-fredoka text-3xl md:text-4xl py-3 rounded-2xl font-bold border-2 border-rose-500">
-                    e
-                </button>
-                <button onclick="selectVowel('i')" id="btn-i" class="vowel-btn bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-fredoka text-3xl md:text-4xl py-3 rounded-2xl font-bold border-2 border-emerald-500">
-                    i
-                </button>
-                <button onclick="selectVowel('o')" id="btn-o" class="vowel-btn bg-purple-400 hover:bg-purple-300 text-purple-950 font-fredoka text-3xl md:text-4xl py-3 rounded-2xl font-bold border-2 border-purple-500">
-                    o
-                </button>
-                <button onclick="selectVowel('u')" id="btn-u" class="vowel-btn bg-sky-400 hover:bg-sky-300 text-sky-950 font-fredoka text-3xl md:text-4xl py-3 rounded-2xl font-bold border-2 border-sky-500">
-                    u
-                </button>
-            </div>
-        </div>
-
-        <!-- Audio & Helper Buttons -->
-        <div class="w-full flex items-center justify-center gap-3">
-            <button onclick="speakCurrentWord()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-2xl shadow-md border-b-4 border-amber-700 active:border-b-0 active:translate-y-1 transition text-base md:text-lg flex items-center justify-center gap-2">
-                <span>🔊 Read Word Sound</span>
-            </button>
-        </div>
-
-    </main>
-
-    <!-- Word Grid Selector Box (Jump to any word) -->
-    <footer class="w-full max-w-2xl bg-white rounded-2xl p-4 shadow-md border border-slate-200 mt-4 mb-2">
-        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-center">
-            Word Bases Navigator (Click to Jump)
-        </div>
-        <div id="wordGrid" class="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
-            <!-- 20 Word Quick-Jump Buttons -->
-        </div>
-    </footer>
-
-    <!-- JavaScript Logic -->
-    <script>
-        const wordBases = [
-            {
-                start: 'h', end: 't',
-                words: {
-                    a: { word: 'hat', emoji: '🎩', hebrew: 'כובע', img: 'https://images.unsplash.com/photo-1521369984125-65b247265fd0?w=300&auto=format&fit=crop&q=80' },
-                    e: null,
-                    i: { word: 'hit', emoji: '🥊', hebrew: 'להכות / מכה', img: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=300&auto=format&fit=crop&q=80' },
-                    o: { word: 'hot', emoji: '🔥', hebrew: 'חם', img: 'https://images.unsplash.com/photo-1508873696983-2df515122519?w=300&auto=format&fit=crop&q=80' },
-                    u: { word: 'hut', emoji: '🛖', hebrew: 'בקתה / סוכה', img: 'https://images.unsplash.com/photo-1544984243-ec57ea16fe25?w=300&auto=format&fit=crop&q=80' }
-                }
-            },
-            {
-                start: 'p', end: 'n',
-                words: {
-                    a: { word: 'pan', emoji: '🍳', hebrew: 'מחבת', img: 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=300&auto=format&fit=crop&q=80' },
-                    e: { word: 'pen', emoji: '🖊️', hebrew: 'עט', img: 'https://images.unsplash.com/photo-1585336261026-875a60a1c96b?w=300&auto=format&fit=crop&q=80' },
-                    i: { word: 'pin', emoji: '📌', hebrew: 'סיכה', img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=300&auto=format&fit=crop&q=80' },
-                    o: null,
-                    u: { word: 'pun', emoji: '😄', hebrew: 'משחק מילים / בדיחה', img: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=300&auto=format&fit=crop&q=80' }
-                }
-            },
-            {
-                start: 'b', end: 'g',
-                words: {
-                    a: { word: 'bag', emoji: '🎒', hebrew: 'תיק / ילקוט', img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&auto=format&fit=crop&q=80' },
-                    e: { word: 'beg', emoji: '🪪', hebrew: 'לבקש / לבקש נדבה', img: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=300&auto=format&fit=crop&q=80' },
-                    i: { word: 'big', emoji: '🐘', hebrew: 'גדול', img: 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=300&auto=format&fit=crop&q=80' },
-                    o: null,
-                    u: { word: 'bug', emoji: '🐛', hebrew: 'חרק / חיפושית', img: 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=300&auto=format&fit=crop&q=80' }
-                }
-            },
-            {
-                start: 'c', end: 't',
-                words: {
-                    a: { word: 'cat', emoji: '🐱', hebrew: 'חתול', img: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=300&auto=format&fit=crop&q=80' },
-                    e: null,
-                    i: null,
-                    o: { word: 'cot', emoji: '🛏️', hebrew: 'מיטת תינוק / מיטת שדה', img: 'https://images.unsplash.com/photo-1519643381401-22c77e60520e?w=300&auto=format&fit=crop&q=80' },
-                    u: { word: 'cut', emoji: '✂️', hebrew: 'לגזור / לחתוך', img: 'https://images.unsplash.com/photo-1503792501406-2c40da09e1e2?w=300&auto=format&fit=crop&q=80' }
-                }
-            },
-            {
-                start: 'b', end: 'd',
-                words: {
-                    a: { word: 'bad', emoji: '👎', hebrew: 'רע / לא טוב', img: 'https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?w=300&auto=format&fit=crop&q=80' },
-                    e: { word: 'bed', emoji: '🛏️', hebrew: 'מיטה', img: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=300&auto=format&fit=crop&q=80' },
-                    i: { word: 'bid', emoji: '🏷️', hebrew: 'להציע מחיר', img: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=300&auto=format&fit=crop&q=80' },
-                    o: null,
-                    u: { word: 'bud', emoji: '🌹', hebrew: 'ניצן של פרח', img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300&auto=format&fit=crop&q=80' }
-                }
-            },
-            {
-                start: 'f', end: 'n',
-                words: {
-                    a: { word: 'fan', emoji: '🪭', hebrew: 'מאוורר / מעריץ', img: 'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=300&auto=format&fit=crop&q=80' },
-                    e: null,
-                    i: { word: 'fin', emoji: '🐟', hebrew: 'סנפיר של דג', img: 'https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=300&auto=format&fit=crop&q=80' },
-                    o: null,
-                    u: { word: 'fun', emoji: '🥳', hebrew: 'כיף / הנאה', img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80' }
-                }
-            },
-            {
-                start: 'p', end: 'g',
-                words: {
-                    a: null,
-                    e: { word: 'peg', emoji: '📎', hebrew: 'אטב כביסה / יתד', img: 'https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?w=300&auto=format&fit=crop&q=80' },
-                    i: { word: 'pig', emoji: '🐷', hebrew: 'חזיר', img: 'https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=300&auto=format&fit=crop&q=80' },
-                    o: null,
-                    u: { word: 'pug', emoji: '🐶', hebrew: 'כלב פאג', img: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=300&auto=format&fit=crop&q=80' }
-                }
-            },
-            {
-                start: 'm', end: 'p',
-                words: {
-                    a: { word: 'map', emoji: '🗺️', hebrew: 'מפה', img: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=300&auto=format&fit=crop&q=80' },
-                    e: null,
-                    i: null,
-                    o: { word: 'mop', emoji: '🧹', hebrew: 'מגב / מגב שטיפה', img: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=300&auto=format&fit=crop&q=80' },
-                    u: null
-                }
-            },
-            {
-                start: 's', end: 'n',
-                words: {
-                    a: null,
-                    e: null,
-                    i: { word: 'sin', emoji: '⚠️', hebrew: 'חטא / עבירה', img: 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=300&auto=format&fit=crop&q=80' },
-                    o: { word: 'son', emoji: '👦', hebrew: 'בן (ילד של הורים)', img: 'https://images.unsplash.com/photo-1485546246426-74dc88dec4d9?w=300&auto=format&fit=crop&q=80' },
-                    u: { word: 'sun', emoji: '☀️', hebrew: 'שמש', img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300&auto=format&fit=crop&q=80' }
-                }
-            },
-            {
-                start: 'b', end: 't',
-                words: {
-                    a: { word: 'bat', emoji: '🦇', hebrew: 'עטלף / מחבט', img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=300&auto=format&fit=crop&q=80' },
-                    e: { word: 'bet', emoji: '🎰', hebrew: 'להמר / הימור', img: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300&auto=format&fit=crop&q=80' },
-                    i: { word: 'bit', emoji: '🪙', hebrew: 'חתיכה קטנה / ביט', img: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=300&auto=format&fit=crop&q=80' },
-                    o: { word: 'bot', emoji: '🤖', hebrew: 'רובוט', img: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=300&auto=format&fit=crop&q=80' },
-                    u: { word: 'but', emoji: '🤔', hebrew: 'אבל', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=300&auto=format&fit=crop&q=80' }
-                }
-            },
-            {
-                start: 'r', end: 'n',
-                words: {
-                    a: { word: 'ran', emoji: '🏃', hebrew: 'רץ (בעבר)', img: 'https://images.unsplash.com/photo-1486218119243-13883505764c?w=300&auto=format&fit=crop&q=80' },
-                    e: null,
-                    i: null,
-                    o: null,
-                    u: { word: 'run', emoji: '🏃‍♂️', hebrew: 'לרוץ', img: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=300&auto=format&fit=crop&q=80' }
-                }
-            },
-            {
-                start: 'm', end: 'n',
-                words: {
-                    a: { word: 'man', emoji: '👨', hebrew: 'איש / גבר', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80' },
-                    e: { word: 'men', emoji: '👨‍👨‍👦', hebrew: 'אנשים / גברים', img: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=300&auto=format&fit=crop&q=80' },
-                    i: null,
-                    o: null,
-                    u: null
-                }
-            },
-            {
-                start: 't', end: 'p',
-                words: {
-                    a: { word: 'tap', emoji: '🚰', hebrew: 'ברז מים', img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=300&auto=format&fit=crop&q=80' },
-                    e: null,
-                    i: { word: 'tip', emoji: '💡', hebrew: 'טיפ / קצה', img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300&auto=format&fit=crop&q=80' },
-                    o: { word: 'top', emoji: '🔝', hebrew: 'סביבון / למעלה / ראש', img: 'https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?w=300&auto=format&fit=crop&q=80' },
-                    u: null
-                }
-            },
-            {
-                start: 'l', end: 'g',
-                words: {
-                    a: { word: 'lag', emoji: '⌛', hebrew: 'השהייה / עיכוב', img: 'https://images.unsplash.com/photo-1508962914676-134849a727f0?w=300&auto=format&fit=crop&q=80' },
-                    e: { word: 'leg', emoji: '🦵', hebrew: 'רגל', img: 'https://images.unsplash.com/photo-1508215885820-4585e56135c8?w=300&auto=format&fit=crop&q=80' },
-                    i: null,
-                    o: { word: 'log', emoji: '🪵', hebrew: 'בול עץ', img: 'https://images.unsplash.com/photo-1520116468816-95b69f847357?w=300&auto=format&fit=crop&q=80' },
-                    u: null
-                }
-            },
-            {
-                start: 'r', end: 'd',
-                words: {
-                    a: { word: 'rad', emoji: '🕶️', hebrew: 'מגניב מאוד', img: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&auto=format&fit=crop&q=80' },
-                    e: { word: 'red', emoji: '🔴', hebrew: 'אדום', img: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=300&auto=format&fit=crop&q=80' },
-                    i: { word: 'rid', emoji: '🧹', hebrew: 'להשתחרר מ-', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&auto=format&fit=crop&q=80' },
-                    o: null,
-                    u: null
-                }
-            },
-            {
-                start: 'p', end: 't',
-                words: {
-                    a: { word: 'pat', emoji: '🫳', hebrew: 'לטפוח בעדינות', img: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=300&auto=format&fit=crop&q=80' },
-                    e: { word: 'pet', emoji: '🐶', hebrew: 'חיית מחמד', img: 'https://images.unsplash.com/photo-1450778869186-3997d5a518d6?w=300&auto=format&fit=crop&q=80' },
-                    i: { word: 'pit', emoji: '🕳️', hebrew: 'בור באדמה', img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300&auto=format&fit=crop&q=80' },
-                    o: { word: 'pot', emoji: '🏺', hebrew: 'סיר בישול / עציץ', img: 'https://images.unsplash.com/photo-1514986888952-8cd320577b68?w=300&auto=format&fit=crop&q=80' },
-                    u: { word: 'put', emoji: '🏌️', hebrew: 'להניח / לשים', img: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=300&auto=format&fit=crop&q=80' }
-                }
-            },
-            {
-                start: 'd', end: 'g',
-                words: {
-                    a: null,
-                    e: null,
-                    i: { word: 'dig', emoji: '⛏️', hebrew: 'לחפור', img: 'https://images.unsplash.com/photo-1508873696983-2df515122519?w=300&auto=format&fit=crop&q=80' },
-                    o: { word: 'dog', emoji: '🐶', hebrew: 'כלב', img: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=300&auto=format&fit=crop&q=80' },
-                    u: null
-                }
-            },
-            {
-                start: 'f', end: 'x',
-                words: {
-                    a: null,
-                    e: null,
-                    i: { word: 'fix', emoji: '🔧', hebrew: 'לתקן', img: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=300&auto=format&fit=crop&q=80' },
-                    o: { word: 'fox', emoji: '🦊', hebrew: 'שועל', img: 'https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=300&auto=format&fit=crop&q=80' },
-                    u: null
-                }
-            },
-            {
-                start: 'b', end: 'x',
-                words: {
-                    a: null,
-                    e: null,
-                    i: null,
-                    o: { word: 'box', emoji: '📦', hebrew: 'קופסה', img: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=300&auto=format&fit=crop&q=80' },
-                    u: null
-                }
-            },
-            {
-                start: 'n', end: 't',
-                words: {
-                    a: null,
-                    e: { word: 'net', emoji: '🕸️', hebrew: 'רשת', img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300&auto=format&fit=crop&q=80' },
-                    i: { word: 'nit', emoji: '🪲', hebrew: 'ביצת כינה', img: 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=300&auto=format&fit=crop&q=80' },
-                    o: { word: 'not', emoji: '🚫', hebrew: 'לא', img: 'https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?w=300&auto=format&fit=crop&q=80' },
-                    u: { word: 'nut', emoji: '🥜', hebrew: 'אגוז / אגוז מלך', img: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e4?w=300&auto=format&fit=crop&q=80' }
-                }
-            }
-        ];
-
-        let currentIndex = 0;
-        let selectedVowel = '';
-        let speechSpeed = 0.85;
-
-        function init() {
-            renderWordGrid();
-            loadWord(0);
-        }
-
-        function loadWord(index) {
-            currentIndex = index;
-            selectedVowel = '';
-            const base = wordBases[currentIndex];
-            
-            document.getElementById('wordCounter').textContent = `Word ${currentIndex + 1} of ${wordBases.length}`;
-            document.getElementById('vowelTag').textContent = `Base: ${base.start} _ ${base.end}`;
-            document.getElementById('prevBtn').disabled = currentIndex === 0;
-            document.getElementById('nextBtn').disabled = currentIndex === wordBases.length - 1;
-
-            resetVowelButtons();
-            renderWordDisplay();
-            updateWordGridUI();
-        }
-
-        function renderWordDisplay() {
-            const base = wordBases[currentIndex];
-            const display = document.getElementById('wordDisplay');
-            const picContainer = document.getElementById('pictureContainer');
-            const meaningBox = document.getElementById('meaningBox');
-
-            const vowelChar = selectedVowel !== '' ? selectedVowel : '_';
-            const vowelColorClass = selectedVowel !== '' ? 'text-sky-600 font-bold border-b-6 border-sky-500 px-3' : 'text-slate-300 border-b-6 border-dashed border-slate-400 px-4';
-
-            display.innerHTML = `
-                <span class="text-slate-800">${base.start}</span>
-                <span class="${vowelColorClass} transition-all duration-150">${vowelChar}</span>
-                <span class="text-slate-800">${base.end}</span>
-            `;
-
-            if (selectedVowel === '') {
-                picContainer.innerHTML = `
-                    <div class="text-slate-400 text-center font-bold">
-                        <span class="text-5xl block mb-1">❓</span>
-                        <span class="text-sm">Click a vowel below to try making a word!</span>
-                    </div>
-                `;
-                meaningBox.className = "mt-3 px-4 py-1.5 rounded-full text-sm md:text-base font-bold bg-slate-100 text-slate-500";
-                meaningBox.innerHTML = `<span>Try inserting a, e, i, o, or u</span>`;
-            } else {
-                const resultWord = base.words[selectedVowel];
-
-                if (resultWord) {
-                    picContainer.innerHTML = `
-                        <div class="relative img-pop flex items-center justify-center">
-                            <img src="${resultWord.img}" alt="${resultWord.word}" class="h-28 w-28 object-cover rounded-2xl shadow-md border-2 border-white" onerror="this.src='https://placehold.co/200x200/bae6fd/0369a1?text=${resultWord.word}'" />
-                            <span class="absolute -top-2 -right-2 text-3xl bg-white rounded-full p-1 shadow-md">${resultWord.emoji}</span>
-                        </div>
-                    `;
-                    meaningBox.className = "mt-3 px-5 py-1.5 rounded-full text-base md:text-lg font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 img-pop";
-                    meaningBox.innerHTML = `<span>✨ Real Word: <b>${resultWord.word}</b> (${resultWord.hebrew})</span>`;
-                } else {
-                    picContainer.innerHTML = `
-                        <div class="text-amber-500 text-center font-bold img-pop">
-                            <span class="text-5xl block mb-1">🚫</span>
-                            <span class="text-xs text-amber-600 uppercase tracking-wider font-bold">Not a real word</span>
-                        </div>
-                    `;
-                    meaningBox.className = "mt-3 px-4 py-1.5 rounded-full text-sm font-bold bg-amber-50 text-amber-700 border border-amber-200";
-                    meaningBox.innerHTML = `<span>"${base.start}${selectedVowel}${base.end}" is not a common word. Try another vowel!</span>`;
-                }
-            }
-        }
-
-        function selectVowel(vowel) {
-            selectedVowel = vowel;
-            resetVowelButtons();
-            const btn = document.getElementById(`btn-${vowel}`);
-            if (btn) {
-                btn.classList.add('selected', 'ring-4', 'ring-offset-2', 'ring-sky-500');
-            }
-            renderWordDisplay();
-            speakCurrentWord();
-        }
-
-        function resetVowelButtons() {
-            ['a', 'e', 'i', 'o', 'u'].forEach(v => {
-                const b = document.getElementById(`btn-${v}`);
-                if (b) {
-                    b.classList.remove('selected', 'ring-4', 'ring-offset-2', 'ring-sky-500');
-                }
-            });
-        }
-
-        function speakCurrentWord() {
-            const base = wordBases[currentIndex];
-            const activeVowel = selectedVowel !== '' ? selectedVowel : 'a';
-            const fullWord = `${base.start}${activeVowel}${base.end}`;
-
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(fullWord);
-            utterance.lang = 'en-US';
-            utterance.rate = speechSpeed;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function changeWord(delta) {
-            const newIndex = currentIndex + delta;
-            if (newIndex >= 0 && newIndex < wordBases.length) {
-                loadWord(newIndex);
-            }
-        }
-
-        function setSpeed(speed) {
-            speechSpeed = speed;
-            document.getElementById('speedSlow').className = speed === 0.6 ? 'px-2 py-0.5 rounded bg-sky-500 text-white font-bold' : 'px-2 py-0.5 rounded border border-slate-300 hover:bg-slate-100';
-            document.getElementById('speedNorm').className = speed === 0.85 ? 'px-2 py-0.5 rounded bg-sky-500 text-white font-bold' : 'px-2 py-0.5 rounded border border-slate-300 hover:bg-slate-100';
-        }
-
-        function renderWordGrid() {
-            const grid = document.getElementById('wordGrid');
-            grid.innerHTML = '';
-            wordBases.forEach((item, idx) => {
-                const btn = document.createElement('button');
-                btn.id = `grid-btn-${idx}`;
-                btn.className = 'py-1.5 rounded-lg font-fredoka font-bold text-xs sm:text-sm border transition flex flex-col items-center justify-center';
-                btn.innerHTML = `<span>${item.start}_${item.end}</span>`;
-                btn.onclick = () => loadWord(idx);
-                grid.appendChild(btn);
-            });
-        }
-
-        function updateWordGridUI() {
-            wordBases.forEach((_, idx) => {
-                const btn = document.getElementById(`grid-btn-${idx}`);
-                if (btn) {
-                    if (idx === currentIndex) {
-                        btn.className = 'py-1.5 rounded-lg font-fredoka font-bold text-xs sm:text-sm bg-sky-500 text-white border-sky-600 shadow-sm';
-                    } else {
-                        btn.className = 'py-1.5 rounded-lg font-fredoka font-bold text-xs sm:text-sm bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200';
-                    }
-                }
-            });
-        }
-
-        document.addEventListener('keydown', (e) => {
-            const key = e.key.toLowerCase();
-            if (['a', 'e', 'i', 'o', 'u'].includes(key)) {
-                selectVowel(key);
-            } else if (key === 'arrowright') {
-                changeWord(1);
-            } else if (key === 'arrowleft') {
-                changeWord(-1);
-            } else if (key === ' ') {
-                speakCurrentWord();
-            }
+  /* ---------- Voice: female English by default, dropdown to change, choice remembered ---------- */
+  const PREFER = ['samantha', 'karen', 'zira', 'aria', 'jenny', 'google us english', 'victoria', 'female'];
+  const Voice = {
+    list: [], cur: null, select: null,
+    load() {
+      if (!('speechSynthesis' in window)) return;
+      this.list = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+      if (!this.list.length || !this.select) return;
+      const saved = store.get('nave-voice', '');
+      let best = this.list.findIndex(v => v.name === saved);
+      if (best < 0) {
+        let rank = 99; best = 0;
+        this.list.forEach((v, i) => {
+          const r = PREFER.findIndex(p => v.name.toLowerCase().includes(p));
+          if (r >= 0 && r < rank) { rank = r; best = i; }
         });
+      }
+      this.select.replaceChildren(...this.list.map((v, i) => h('option', { value: String(i) }, v.name)));
+      this.select.value = String(best); this.cur = this.list[best];
+    },
+    pick() { this.cur = this.list[this.select.value]; if (this.cur) store.set('nave-voice', this.cur.name); this.say('Hello Nave'); },
+    say(text) {
+      if (!('speechSynthesis' in window)) return;
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US'; u.rate = 0.8;
+      if (this.cur) u.voice = this.cur;
+      speechSynthesis.speak(u);
+    }
+  };
 
-        window.onload = init;
-    </script>
+  const VOW = ['a', 'e', 'i', 'o', 'u'];
+  function frame(cfg) {
+    const voiceSel = h('select', { id: 'voice', 'aria-label': 'בחירת קול', onchange: () => Voice.pick() });
+    Voice.select = voiceSel;
+    const stage = h('main', { class: 'wrap' }), tabs = h('nav', { class: 'tabs', 'aria-label': 'שלבים' });
+    document.getElementById('app').replaceChildren(
+      h('div', { class: 'bar' }, h('a', { class: 'back', href: cfg.back || 'index.html' }, '→ חזרה'), voiceSel), stage, tabs);
+    if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => Voice.load();
+    Voice.load();
+    return { stage, tabs };
+  }
+  const spk = text => h('button', { class: 'snd', 'aria-label': 'השמע', onclick: () => Voice.say(text) }, '🔊');
+  const letters = (a, mid, b, cls) => h('div', { class: 'slot en', dir: 'ltr' }, h('span', {}, a), h('span', { class: 'gap ' + (cls || '') }, mid), h('span', {}, b));
+
+  /* Swap the vowel: h _ t -> press a, e, i, o, u and see if it is a real word */
+  function swap(cfg) {
+    const B = cfg.bases, { stage } = frame(cfg);
+    let bi = 0, vow = '';
+    const go = i => { bi = (i + B.length) % B.length; vow = ''; render(); };
+    function render() {
+      const b = B[bi], w = vow ? b.words[vow] : null;
+      const mid = vow || '_';
+      const body = [letters(b.s, mid, b.e, vow ? (w ? 'ok' : 'no') : '')];
+      if (!vow) body.push(h('div', { class: 'hint' }, 'בחרו תנועה'));
+      else if (w) body.push(w.icon ? h('div', { class: 'emo' }, w.icon) : null, h('div', { class: 'he' }, w.he), spk(w.en));
+      else body.push(h('div', { class: 'fb', style: 'margin-top:14px' }, 'אין מילה כזו באנגלית'));
+      const vows = h('div', { class: 'vows', dir: 'ltr' }, VOW.map(v => h('button', {
+        class: 'opt vb' + (v === vow ? ' on' : ''), 'aria-pressed': String(v === vow), onclick: () => { vow = v; render(); }
+      }, v)));
+      stage.replaceChildren(
+        h('div', { class: 'row2' },
+          h('button', { class: 'back', onclick: () => go(bi - 1) }, 'הקודם'),
+          h('span', { class: 'cnt' }, `${bi + 1} / ${B.length}`),
+          h('button', { class: 'back', onclick: () => go(bi + 1) }, 'הבא')),
+        h('div', { class: 'card' }, body), vows,
+        h('h3', {}, 'בחרו מילה'),
+        h('div', { class: 'bases', dir: 'ltr' }, B.map((x, i) => h('button', { class: 'chip' + (i === bi ? ' on' : ''), onclick: () => go(i) }, `${x.s}_${x.e}`))));
+    }
+    render();
+  }
+
+
+swap({
+  back: 'index.html',
+  bases: [
+    { s: 'h', e: 't', words: {
+      a: { en: 'hat', he: 'כובע', icon: '🎩' },
+      i: { en: 'hit', he: 'להכות', icon: '🥊' },
+      o: { en: 'hot', he: 'חם', icon: '🔥' },
+      u: { en: 'hut', he: 'בקתה', icon: '🛖' } } },
+    { s: 'b', e: 'g', words: {
+      a: { en: 'bag', he: 'תיק', icon: '🎒' },
+      e: { en: 'beg', he: 'להתחנן', icon: '🙏' },
+      i: { en: 'big', he: 'גדול', icon: '🐘' },
+      u: { en: 'bug', he: 'חרק', icon: '🐛' } } },
+    { s: 'p', e: 't', words: {
+      a: { en: 'pat', he: 'לטפוח', icon: '🫳' },
+      e: { en: 'pet', he: 'חיית מחמד', icon: '🐶' },
+      i: { en: 'pit', he: 'בור', icon: '🕳️' },
+      o: { en: 'pot', he: 'סיר', icon: '🍲' } } },
+    { s: 'c', e: 't', words: {
+      a: { en: 'cat', he: 'חתול', icon: '🐱' },
+      o: { en: 'cot', he: 'מיטת תינוק', icon: '🛏️' },
+      u: { en: 'cut', he: 'לחתוך', icon: '✂️' } } },
+    { s: 'p', e: 'n', words: {
+      a: { en: 'pan', he: 'מחבת', icon: '🍳' },
+      e: { en: 'pen', he: 'עט', icon: '🖊️' },
+      i: { en: 'pin', he: 'סיכה', icon: '📌' } } },
+    { s: 'd', e: 'g', words: {
+      i: { en: 'dig', he: 'לחפור', icon: '⛏️' },
+      o: { en: 'dog', he: 'כלב', icon: '🐶' },
+      u: { en: 'dug', he: 'חפר', icon: '🕳️' } } },
+    { s: 'b', e: 'd', words: {
+      a: { en: 'bad', he: 'רע', icon: '👎' },
+      e: { en: 'bed', he: 'מיטה', icon: '🛏️' },
+      i: { en: 'bid', he: 'להציע מחיר', icon: '🏷️' } } },
+    { s: 's', e: 't', words: {
+      a: { en: 'sat', he: 'ישב', icon: '🪑' },
+      e: { en: 'set', he: 'סט', icon: '🎯' },
+      i: { en: 'sit', he: 'לשבת', icon: '💺' } } },
+    { s: 'm', e: 'd', words: {
+      a: { en: 'mad', he: 'כועס', icon: '😠' },
+      u: { en: 'mud', he: 'בוץ', icon: '🟤' } } },
+    { s: 'l', e: 'g', words: {
+      e: { en: 'leg', he: 'רגל', icon: '🦵' },
+      o: { en: 'log', he: 'בול עץ', icon: '🪵' } } },
+    { s: 'n', e: 't', words: {
+      e: { en: 'net', he: 'רשת', icon: '🥅' },
+      o: { en: 'not', he: 'לא', icon: '🚫' },
+      u: { en: 'nut', he: 'אגוז', icon: '🥜' } } },
+    { s: 'r', e: 'n', words: {
+      a: { en: 'ran', he: 'רץ', icon: '🏃' },
+      u: { en: 'run', he: 'לרוץ', icon: '🏃‍♂️' } } },
+    { s: 'f', e: 'n', words: {
+      a: { en: 'fan', he: 'מאוורר', icon: '🪭' },
+      i: { en: 'fin', he: 'סנפיר', icon: '🐟' },
+      u: { en: 'fun', he: 'כיף', icon: '🥳' } } },
+    { s: 't', e: 'p', words: {
+      a: { en: 'tap', he: 'ברז', icon: '🚰' },
+      i: { en: 'tip', he: 'טיפ', icon: '💡' },
+      o: { en: 'top', he: 'חלק עליון', icon: '🔝' } } },
+    { s: 'r', e: 'd', words: {
+      e: { en: 'red', he: 'אדום', icon: '🔴' },
+      i: { en: 'rid', he: 'להיפטר', icon: '🧹' },
+      o: { en: 'rod', he: 'מוט', icon: '🎣' } } },
+    { s: 'p', e: 'g', words: {
+      e: { en: 'peg', he: 'יתד', icon: '📎' },
+      i: { en: 'pig', he: 'חזיר', icon: '🐷' },
+      u: { en: 'pug', he: 'כלב פאג', icon: '🐶' } } },
+    { s: 'f', e: 'x', words: {
+      i: { en: 'fix', he: 'לתקן', icon: '🔧' },
+      o: { en: 'fox', he: 'שועל', icon: '🦊' } } },
+    { s: 'm', e: 'p', words: {
+      a: { en: 'map', he: 'מפה', icon: '🗺️' },
+      o: { en: 'mop', he: 'מגב', icon: '🧹' } } },
+    { s: 'h', e: 'p', words: {
+      i: { en: 'hip', he: 'ירך', icon: '🦴' },
+      o: { en: 'hop', he: 'לקפוץ', icon: '🐇' } } },
+    { s: 'b', e: 't', words: {
+      a: { en: 'bat', he: 'עטלף', icon: '🦇' },
+      e: { en: 'bet', he: 'להמר', icon: '🎰' },
+      i: { en: 'bit', he: 'קצת', icon: '🤏' },
+      u: { en: 'but', he: 'אבל', icon: '🤔' } } },
+    { s: 'c', e: 'p', words: {
+      a: { en: 'cap', he: 'כובע מצחיה', icon: '🧢' },
+      o: { en: 'cop', he: 'שוטר', icon: '👮' },
+      u: { en: 'cup', he: 'כוס', icon: '☕' } } }
+  ]
+});
+})();
+</script>
 </body>
 </html>
