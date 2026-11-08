@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meet Emma - נווה</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Rubik:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/nave.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="../assets/nave.js"></script>
+<script>
+NaveQuiz.start({
+  id: 'meet-emma',
+  title: 'Meet Emma 🌟',
+  back: 'index.html',
+  words: [
+    { en: 'a lot of', he: 'הרבה', icon: '📦', sentence: 'I have a lot of books.' },
+    { en: 'goal', he: 'שער / מטרה', icon: '⚽', sentence: 'He scored a goal!' },
+    { en: 'kick', he: 'לבעוט', icon: '🦶', sentence: 'Kick the ball.' },
+    { en: 'song', he: 'שיר', icon: '🎵', sentence: 'Listen to this song.' },
+    { en: 'also', he: 'גם', icon: '➕', sentence: 'I also like ice cream.' },
+    { en: 'hobby', he: 'תחביב', icon: '🎨', sentence: 'My hobby is painting.' },
+    { en: 'piano', he: 'פסנתר', icon: '🎹', sentence: 'She plays the piano.' },
+    { en: 'subject', he: 'מקצוע לימוד', icon: '📚', sentence: 'English is my favorite subject.' },
+    { en: 'far', he: 'רחוק', icon: '🏞️', sentence: 'The park is far away.' },
+    { en: 'Israel', he: 'ישראל', icon: '🇮🇱', sentence: 'We live in Israel.' },
+    { en: 'play', he: 'לנגן / לשחק', icon: '🎮', sentence: "Let's play together." }
+  ]
+});
+</script>
+</body>
+</html>

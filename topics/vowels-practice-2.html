@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nave's CVC Vowel Explorer 🔤</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Rubik:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Rubik', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            touch-action: manipulation;
+        }
+        .font-fredoka {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .vowel-btn {
+            transition: all 0.15s ease-in-out;
+            box-shadow: 0 4px 0px rgba(0,0,0,0.15);
+        }
+        .vowel-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0px rgba(0,0,0,0.15);
+        }
+        .vowel-btn.selected {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px rgba(0,0,0,0.2);
+        }
+        .img-pop {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-3 md:p-6 text-slate-800">
+
+    <!-- Back Navigation Bar -->
+    <div class="w-full max-w-2xl flex justify-start mb-2" dir="rtl">
+        <a href="index.html" class="inline-flex items-center gap-1 text-sky-700 font-bold bg-white px-3 py-1.5 rounded-xl border border-sky-200 shadow-sm hover:bg-sky-50 transition text-sm">
+            ➡️ חזרה למרכז
+        </a>
+    </div>
+
+    <!-- Header Section -->
+    <header class="w-full max-w-2xl text-center mb-3">
+        <div class="flex items-center justify-between bg-white px-4 py-2 rounded-2xl shadow-sm border border-sky-200 mb-2">
+            <span class="text-xs md:text-sm font-bold text-sky-700 bg-sky-100 px-3 py-1 rounded-full">
+                Vowel Explorer: Try A, E, I, O, U!
+            </span>
+            <div class="flex items-center gap-1 text-xs md:text-sm font-bold text-slate-600">
+                <span>🔊 Speed:</span>
+                <button onclick="setSpeed(0.6)" id="speedSlow" class="px-2 py-0.5 rounded border border-slate-300 hover:bg-slate-100">Slow</button>
+                <button onclick="setSpeed(0.85)" id="speedNorm" class="px-2 py-0.5 rounded bg-sky-500 text-white font-bold">Normal</button>
+            </div>
+        </div>
+        <h1 class="font-fredoka text-2xl md:text-4xl font-bold text-sky-600 tracking-wide">
+            CVC Vowel Picture Explorer 🔤
+        </h1>
+        <p class="text-xs md:text-sm text-slate-500 font-medium">
+            Change the vowel to see if it makes a REAL word with a picture!
+        </p>
+    </header>
+
+    <!-- Main Card Display -->
+    <main class="w-full max-w-2xl bg-white rounded-3xl p-5 md:p-6 shadow-xl border-4 border-sky-200 flex flex-col items-center relative">
+        
+        <!-- Top Controls / Progress -->
+        <div class="w-full flex items-center justify-between mb-3">
+            <button id="prevBtn" onclick="changeWord(-1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-sm md:text-base border border-slate-300 transition flex items-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed">
+                ⬅️ Prev
+            </button>
+            
+            <div class="text-center">
+                <span id="wordCounter" class="font-fredoka text-lg md:text-xl font-bold text-sky-600">Word 1 of 20</span>
+                <div id="vowelTag" class="text-xs font-semibold text-slate-400">Base: h _ t</div>
+            </div>
+
+            <button id="nextBtn" onclick="changeWord(1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-sm md:text-base border border-slate-300 transition flex items-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed">
+                Next ➡️
+            </button>
+        </div>
+
+        <!-- Big Word & Visual Illustration Box -->
+        <div class="w-full bg-gradient-to-b from-sky-50 to-blue-50 border-3 border-dashed border-sky-300 rounded-3xl p-4 md:p-6 mb-5 flex flex-col items-center justify-center relative shadow-inner min-h-[260px]">
+            
+            <!-- Picture Display Area -->
+            <div id="pictureContainer" class="mb-3 flex flex-col items-center justify-center h-32 w-full">
+                <!-- Dynamic Image or Empty Placeholder -->
+            </div>
+
+            <!-- Big Word Display Slot -->
+            <div id="wordDisplay" class="font-fredoka text-5xl md:text-7xl font-bold tracking-widest text-slate-800 flex items-center justify-center gap-2 md:gap-4 select-none">
+                <!-- Word letters dynamically generated here -->
+            </div>
+
+            <!-- Word Meaning & Status Box -->
+            <div id="meaningBox" class="mt-3 px-4 py-1.5 rounded-full text-sm md:text-base font-bold flex items-center gap-2">
+                <!-- Status & Hebrew meaning -->
+            </div>
+        </div>
+
+        <!-- Vowel Selection Buttons -->
+        <div class="w-full mb-5">
+            <div class="text-center text-xs md:text-sm font-bold text-slate-500 mb-2 uppercase tracking-wider">
+                Click a Vowel to Try It:
+            </div>
+            <div class="grid grid-cols-5 gap-2 md:gap-4 max-w-md mx-auto">
+                <button onclick="selectVowel('a')" id="btn-a" class="vowel-btn bg-amber-400 hover:bg-amber-300 text-amber-950 font-fredoka text-3xl md:text-4xl py-3 rounded-2xl font-bold border-2 border-amber-500">
+                    a
+                </button>
+                <button onclick="selectVowel('e')" id="btn-e" class="vowel-btn bg-rose-400 hover:bg-rose-300 text-rose-950 font-fredoka text-3xl md:text-4xl py-3 rounded-2xl font-bold border-2 border-rose-500">
+                    e
+                </button>
+                <button onclick="selectVowel('i')" id="btn-i" class="vowel-btn bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-fredoka text-3xl md:text-4xl py-3 rounded-2xl font-bold border-2 border-emerald-500">
+                    i
+                </button>
+                <button onclick="selectVowel('o')" id="btn-o" class="vowel-btn bg-purple-400 hover:bg-purple-300 text-purple-950 font-fredoka text-3xl md:text-4xl py-3 rounded-2xl font-bold border-2 border-purple-500">
+                    o
+                </button>
+                <button onclick="selectVowel('u')" id="btn-u" class="vowel-btn bg-sky-400 hover:bg-sky-300 text-sky-950 font-fredoka text-3xl md:text-4xl py-3 rounded-2xl font-bold border-2 border-sky-500">
+                    u
+                </button>
+            </div>
+        </div>
+
+        <!-- Audio & Helper Buttons -->
+        <div class="w-full flex items-center justify-center gap-3">
+            <button onclick="speakCurrentWord()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-2xl shadow-md border-b-4 border-amber-700 active:border-b-0 active:translate-y-1 transition text-base md:text-lg flex items-center justify-center gap-2">
+                <span>🔊 Read Word Sound</span>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Word Grid Selector Box (Jump to any word) -->
+    <footer class="w-full max-w-2xl bg-white rounded-2xl p-4 shadow-md border border-slate-200 mt-4 mb-2">
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-center">
+            Word Bases Navigator (Click to Jump)
+        </div>
+        <div id="wordGrid" class="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
+            <!-- 20 Word Quick-Jump Buttons -->
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const wordBases = [
+            {
+                start: 'h', end: 't',
+                words: {
+                    a: { word: 'hat', emoji: '🎩', hebrew: 'כובע', img: 'https://images.unsplash.com/photo-1521369984125-65b247265fd0?w=300&auto=format&fit=crop&q=80' },
+                    e: null,
+                    i: { word: 'hit', emoji: '🥊', hebrew: 'להכות / מכה', img: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=300&auto=format&fit=crop&q=80' },
+                    o: { word: 'hot', emoji: '🔥', hebrew: 'חם', img: 'https://images.unsplash.com/photo-1508873696983-2df515122519?w=300&auto=format&fit=crop&q=80' },
+                    u: { word: 'hut', emoji: '🛖', hebrew: 'בקתה / סוכה', img: 'https://images.unsplash.com/photo-1544984243-ec57ea16fe25?w=300&auto=format&fit=crop&q=80' }
+                }
+            },
+            {
+                start: 'p', end: 'n',
+                words: {
+                    a: { word: 'pan', emoji: '🍳', hebrew: 'מחבת', img: 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=300&auto=format&fit=crop&q=80' },
+                    e: { word: 'pen', emoji: '🖊️', hebrew: 'עט', img: 'https://images.unsplash.com/photo-1585336261026-875a60a1c96b?w=300&auto=format&fit=crop&q=80' },
+                    i: { word: 'pin', emoji: '📌', hebrew: 'סיכה', img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=300&auto=format&fit=crop&q=80' },
+                    o: null,
+                    u: { word: 'pun', emoji: '😄', hebrew: 'משחק מילים / בדיחה', img: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=300&auto=format&fit=crop&q=80' }
+                }
+            },
+            {
+                start: 'b', end: 'g',
+                words: {
+                    a: { word: 'bag', emoji: '🎒', hebrew: 'תיק / ילקוט', img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&auto=format&fit=crop&q=80' },
+                    e: { word: 'beg', emoji: '🪪', hebrew: 'לבקש / לבקש נדבה', img: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=300&auto=format&fit=crop&q=80' },
+                    i: { word: 'big', emoji: '🐘', hebrew: 'גדול', img: 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=300&auto=format&fit=crop&q=80' },
+                    o: null,
+                    u: { word: 'bug', emoji: '🐛', hebrew: 'חרק / חיפושית', img: 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=300&auto=format&fit=crop&q=80' }
+                }
+            },
+            {
+                start: 'c', end: 't',
+                words: {
+                    a: { word: 'cat', emoji: '🐱', hebrew: 'חתול', img: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=300&auto=format&fit=crop&q=80' },
+                    e: null,
+                    i: null,
+                    o: { word: 'cot', emoji: '🛏️', hebrew: 'מיטת תינוק / מיטת שדה', img: 'https://images.unsplash.com/photo-1519643381401-22c77e60520e?w=300&auto=format&fit=crop&q=80' },
+                    u: { word: 'cut', emoji: '✂️', hebrew: 'לגזור / לחתוך', img: 'https://images.unsplash.com/photo-1503792501406-2c40da09e1e2?w=300&auto=format&fit=crop&q=80' }
+                }
+            },
+            {
+                start: 'b', end: 'd',
+                words: {
+                    a: { word: 'bad', emoji: '👎', hebrew: 'רע / לא טוב', img: 'https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?w=300&auto=format&fit=crop&q=80' },
+                    e: { word: 'bed', emoji: '🛏️', hebrew: 'מיטה', img: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=300&auto=format&fit=crop&q=80' },
+                    i: { word: 'bid', emoji: '🏷️', hebrew: 'להציע מחיר', img: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=300&auto=format&fit=crop&q=80' },
+                    o: null,
+                    u: { word: 'bud', emoji: '🌹', hebrew: 'ניצן של פרח', img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300&auto=format&fit=crop&q=80' }
+                }
+            },
+            {
+                start: 'f', end: 'n',
+                words: {
+                    a: { word: 'fan', emoji: '🪭', hebrew: 'מאוורר / מעריץ', img: 'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=300&auto=format&fit=crop&q=80' },
+                    e: null,
+                    i: { word: 'fin', emoji: '🐟', hebrew: 'סנפיר של דג', img: 'https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=300&auto=format&fit=crop&q=80' },
+                    o: null,
+                    u: { word: 'fun', emoji: '🥳', hebrew: 'כיף / הנאה', img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80' }
+                }
+            },
+            {
+                start: 'p', end: 'g',
+                words: {
+                    a: null,
+                    e: { word: 'peg', emoji: '📎', hebrew: 'אטב כביסה / יתד', img: 'https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?w=300&auto=format&fit=crop&q=80' },
+                    i: { word: 'pig', emoji: '🐷', hebrew: 'חזיר', img: 'https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=300&auto=format&fit=crop&q=80' },
+                    o: null,
+                    u: { word: 'pug', emoji: '🐶', hebrew: 'כלב פאג', img: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=300&auto=format&fit=crop&q=80' }
+                }
+            },
+            {
+                start: 'm', end: 'p',
+                words: {
+                    a: { word: 'map', emoji: '🗺️', hebrew: 'מפה', img: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=300&auto=format&fit=crop&q=80' },
+                    e: null,
+                    i: null,
+                    o: { word: 'mop', emoji: '🧹', hebrew: 'מגב / מגב שטיפה', img: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=300&auto=format&fit=crop&q=80' },
+                    u: null
+                }
+            },
+            {
+                start: 's', end: 'n',
+                words: {
+                    a: null,
+                    e: null,
+                    i: { word: 'sin', emoji: '⚠️', hebrew: 'חטא / עבירה', img: 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=300&auto=format&fit=crop&q=80' },
+                    o: { word: 'son', emoji: '👦', hebrew: 'בן (ילד של הורים)', img: 'https://images.unsplash.com/photo-1485546246426-74dc88dec4d9?w=300&auto=format&fit=crop&q=80' },
+                    u: { word: 'sun', emoji: '☀️', hebrew: 'שמש', img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300&auto=format&fit=crop&q=80' }
+                }
+            },
+            {
+                start: 'b', end: 't',
+                words: {
+                    a: { word: 'bat', emoji: '🦇', hebrew: 'עטלף / מחבט', img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=300&auto=format&fit=crop&q=80' },
+                    e: { word: 'bet', emoji: '🎰', hebrew: 'להמר / הימור', img: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300&auto=format&fit=crop&q=80' },
+                    i: { word: 'bit', emoji: '🪙', hebrew: 'חתיכה קטנה / ביט', img: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=300&auto=format&fit=crop&q=80' },
+                    o: { word: 'bot', emoji: '🤖', hebrew: 'רובוט', img: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=300&auto=format&fit=crop&q=80' },
+                    u: { word: 'but', emoji: '🤔', hebrew: 'אבל', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=300&auto=format&fit=crop&q=80' }
+                }
+            },
+            {
+                start: 'r', end: 'n',
+                words: {
+                    a: { word: 'ran', emoji: '🏃', hebrew: 'רץ (בעבר)', img: 'https://images.unsplash.com/photo-1486218119243-13883505764c?w=300&auto=format&fit=crop&q=80' },
+                    e: null,
+                    i: null,
+                    o: null,
+                    u: { word: 'run', emoji: '🏃‍♂️', hebrew: 'לרוץ', img: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=300&auto=format&fit=crop&q=80' }
+                }
+            },
+            {
+                start: 'm', end: 'n',
+                words: {
+                    a: { word: 'man', emoji: '👨', hebrew: 'איש / גבר', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80' },
+                    e: { word: 'men', emoji: '👨‍👨‍👦', hebrew: 'אנשים / גברים', img: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=300&auto=format&fit=crop&q=80' },
+                    i: null,
+                    o: null,
+                    u: null
+                }
+            },
+            {
+                start: 't', end: 'p',
+                words: {
+                    a: { word: 'tap', emoji: '🚰', hebrew: 'ברז מים', img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=300&auto=format&fit=crop&q=80' },
+                    e: null,
+                    i: { word: 'tip', emoji: '💡', hebrew: 'טיפ / קצה', img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300&auto=format&fit=crop&q=80' },
+                    o: { word: 'top', emoji: '🔝', hebrew: 'סביבון / למעלה / ראש', img: 'https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?w=300&auto=format&fit=crop&q=80' },
+                    u: null
+                }
+            },
+            {
+                start: 'l', end: 'g',
+                words: {
+                    a: { word: 'lag', emoji: '⌛', hebrew: 'השהייה / עיכוב', img: 'https://images.unsplash.com/photo-1508962914676-134849a727f0?w=300&auto=format&fit=crop&q=80' },
+                    e: { word: 'leg', emoji: '🦵', hebrew: 'רגל', img: 'https://images.unsplash.com/photo-1508215885820-4585e56135c8?w=300&auto=format&fit=crop&q=80' },
+                    i: null,
+                    o: { word: 'log', emoji: '🪵', hebrew: 'בול עץ', img: 'https://images.unsplash.com/photo-1520116468816-95b69f847357?w=300&auto=format&fit=crop&q=80' },
+                    u: null
+                }
+            },
+            {
+                start: 'r', end: 'd',
+                words: {
+                    a: { word: 'rad', emoji: '🕶️', hebrew: 'מגניב מאוד', img: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&auto=format&fit=crop&q=80' },
+                    e: { word: 'red', emoji: '🔴', hebrew: 'אדום', img: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=300&auto=format&fit=crop&q=80' },
+                    i: { word: 'rid', emoji: '🧹', hebrew: 'להשתחרר מ-', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&auto=format&fit=crop&q=80' },
+                    o: null,
+                    u: null
+                }
+            },
+            {
+                start: 'p', end: 't',
+                words: {
+                    a: { word: 'pat', emoji: '🫳', hebrew: 'לטפוח בעדינות', img: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=300&auto=format&fit=crop&q=80' },
+                    e: { word: 'pet', emoji: '🐶', hebrew: 'חיית מחמד', img: 'https://images.unsplash.com/photo-1450778869186-3997d5a518d6?w=300&auto=format&fit=crop&q=80' },
+                    i: { word: 'pit', emoji: '🕳️', hebrew: 'בור באדמה', img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300&auto=format&fit=crop&q=80' },
+                    o: { word: 'pot', emoji: '🏺', hebrew: 'סיר בישול / עציץ', img: 'https://images.unsplash.com/photo-1514986888952-8cd320577b68?w=300&auto=format&fit=crop&q=80' },
+                    u: { word: 'put', emoji: '🏌️', hebrew: 'להניח / לשים', img: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=300&auto=format&fit=crop&q=80' }
+                }
+            },
+            {
+                start: 'd', end: 'g',
+                words: {
+                    a: null,
+                    e: null,
+                    i: { word: 'dig', emoji: '⛏️', hebrew: 'לחפור', img: 'https://images.unsplash.com/photo-1508873696983-2df515122519?w=300&auto=format&fit=crop&q=80' },
+                    o: { word: 'dog', emoji: '🐶', hebrew: 'כלב', img: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=300&auto=format&fit=crop&q=80' },
+                    u: null
+                }
+            },
+            {
+                start: 'f', end: 'x',
+                words: {
+                    a: null,
+                    e: null,
+                    i: { word: 'fix', emoji: '🔧', hebrew: 'לתקן', img: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=300&auto=format&fit=crop&q=80' },
+                    o: { word: 'fox', emoji: '🦊', hebrew: 'שועל', img: 'https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=300&auto=format&fit=crop&q=80' },
+                    u: null
+                }
+            },
+            {
+                start: 'b', end: 'x',
+                words: {
+                    a: null,
+                    e: null,
+                    i: null,
+                    o: { word: 'box', emoji: '📦', hebrew: 'קופסה', img: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=300&auto=format&fit=crop&q=80' },
+                    u: null
+                }
+            },
+            {
+                start: 'n', end: 't',
+                words: {
+                    a: null,
+                    e: { word: 'net', emoji: '🕸️', hebrew: 'רשת', img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300&auto=format&fit=crop&q=80' },
+                    i: { word: 'nit', emoji: '🪲', hebrew: 'ביצת כינה', img: 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=300&auto=format&fit=crop&q=80' },
+                    o: { word: 'not', emoji: '🚫', hebrew: 'לא', img: 'https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?w=300&auto=format&fit=crop&q=80' },
+                    u: { word: 'nut', emoji: '🥜', hebrew: 'אגוז / אגוז מלך', img: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e4?w=300&auto=format&fit=crop&q=80' }
+                }
+            }
+        ];
+
+        let currentIndex = 0;
+        let selectedVowel = '';
+        let speechSpeed = 0.85;
+
+        function init() {
+            renderWordGrid();
+            loadWord(0);
+        }
+
+        function loadWord(index) {
+            currentIndex = index;
+            selectedVowel = '';
+            const base = wordBases[currentIndex];
+            
+            document.getElementById('wordCounter').textContent = `Word ${currentIndex + 1} of ${wordBases.length}`;
+            document.getElementById('vowelTag').textContent = `Base: ${base.start} _ ${base.end}`;
+            document.getElementById('prevBtn').disabled = currentIndex === 0;
+            document.getElementById('nextBtn').disabled = currentIndex === wordBases.length - 1;
+
+            resetVowelButtons();
+            renderWordDisplay();
+            updateWordGridUI();
+        }
+
+        function renderWordDisplay() {
+            const base = wordBases[currentIndex];
+            const display = document.getElementById('wordDisplay');
+            const picContainer = document.getElementById('pictureContainer');
+            const meaningBox = document.getElementById('meaningBox');
+
+            const vowelChar = selectedVowel !== '' ? selectedVowel : '_';
+            const vowelColorClass = selectedVowel !== '' ? 'text-sky-600 font-bold border-b-6 border-sky-500 px-3' : 'text-slate-300 border-b-6 border-dashed border-slate-400 px-4';
+
+            display.innerHTML = `
+                <span class="text-slate-800">${base.start}</span>
+                <span class="${vowelColorClass} transition-all duration-150">${vowelChar}</span>
+                <span class="text-slate-800">${base.end}</span>
+            `;
+
+            if (selectedVowel === '') {
+                picContainer.innerHTML = `
+                    <div class="text-slate-400 text-center font-bold">
+                        <span class="text-5xl block mb-1">❓</span>
+                        <span class="text-sm">Click a vowel below to try making a word!</span>
+                    </div>
+                `;
+                meaningBox.className = "mt-3 px-4 py-1.5 rounded-full text-sm md:text-base font-bold bg-slate-100 text-slate-500";
+                meaningBox.innerHTML = `<span>Try inserting a, e, i, o, or u</span>`;
+            } else {
+                const resultWord = base.words[selectedVowel];
+
+                if (resultWord) {
+                    picContainer.innerHTML = `
+                        <div class="relative img-pop flex items-center justify-center">
+                            <img src="${resultWord.img}" alt="${resultWord.word}" class="h-28 w-28 object-cover rounded-2xl shadow-md border-2 border-white" onerror="this.src='https://placehold.co/200x200/bae6fd/0369a1?text=${resultWord.word}'" />
+                            <span class="absolute -top-2 -right-2 text-3xl bg-white rounded-full p-1 shadow-md">${resultWord.emoji}</span>
+                        </div>
+                    `;
+                    meaningBox.className = "mt-3 px-5 py-1.5 rounded-full text-base md:text-lg font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 img-pop";
+                    meaningBox.innerHTML = `<span>✨ Real Word: <b>${resultWord.word}</b> (${resultWord.hebrew})</span>`;
+                } else {
+                    picContainer.innerHTML = `
+                        <div class="text-amber-500 text-center font-bold img-pop">
+                            <span class="text-5xl block mb-1">🚫</span>
+                            <span class="text-xs text-amber-600 uppercase tracking-wider font-bold">Not a real word</span>
+                        </div>
+                    `;
+                    meaningBox.className = "mt-3 px-4 py-1.5 rounded-full text-sm font-bold bg-amber-50 text-amber-700 border border-amber-200";
+                    meaningBox.innerHTML = `<span>"${base.start}${selectedVowel}${base.end}" is not a common word. Try another vowel!</span>`;
+                }
+            }
+        }
+
+        function selectVowel(vowel) {
+            selectedVowel = vowel;
+            resetVowelButtons();
+            const btn = document.getElementById(`btn-${vowel}`);
+            if (btn) {
+                btn.classList.add('selected', 'ring-4', 'ring-offset-2', 'ring-sky-500');
+            }
+            renderWordDisplay();
+            speakCurrentWord();
+        }
+
+        function resetVowelButtons() {
+            ['a', 'e', 'i', 'o', 'u'].forEach(v => {
+                const b = document.getElementById(`btn-${v}`);
+                if (b) {
+                    b.classList.remove('selected', 'ring-4', 'ring-offset-2', 'ring-sky-500');
+                }
+            });
+        }
+
+        function speakCurrentWord() {
+            const base = wordBases[currentIndex];
+            const activeVowel = selectedVowel !== '' ? selectedVowel : 'a';
+            const fullWord = `${base.start}${activeVowel}${base.end}`;
+
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(fullWord);
+            utterance.lang = 'en-US';
+            utterance.rate = speechSpeed;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function changeWord(delta) {
+            const newIndex = currentIndex + delta;
+            if (newIndex >= 0 && newIndex < wordBases.length) {
+                loadWord(newIndex);
+            }
+        }
+
+        function setSpeed(speed) {
+            speechSpeed = speed;
+            document.getElementById('speedSlow').className = speed === 0.6 ? 'px-2 py-0.5 rounded bg-sky-500 text-white font-bold' : 'px-2 py-0.5 rounded border border-slate-300 hover:bg-slate-100';
+            document.getElementById('speedNorm').className = speed === 0.85 ? 'px-2 py-0.5 rounded bg-sky-500 text-white font-bold' : 'px-2 py-0.5 rounded border border-slate-300 hover:bg-slate-100';
+        }
+
+        function renderWordGrid() {
+            const grid = document.getElementById('wordGrid');
+            grid.innerHTML = '';
+            wordBases.forEach((item, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `grid-btn-${idx}`;
+                btn.className = 'py-1.5 rounded-lg font-fredoka font-bold text-xs sm:text-sm border transition flex flex-col items-center justify-center';
+                btn.innerHTML = `<span>${item.start}_${item.end}</span>`;
+                btn.onclick = () => loadWord(idx);
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateWordGridUI() {
+            wordBases.forEach((_, idx) => {
+                const btn = document.getElementById(`grid-btn-${idx}`);
+                if (btn) {
+                    if (idx === currentIndex) {
+                        btn.className = 'py-1.5 rounded-lg font-fredoka font-bold text-xs sm:text-sm bg-sky-500 text-white border-sky-600 shadow-sm';
+                    } else {
+                        btn.className = 'py-1.5 rounded-lg font-fredoka font-bold text-xs sm:text-sm bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200';
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (['a', 'e', 'i', 'o', 'u'].includes(key)) {
+                selectVowel(key);
+            } else if (key === 'arrowright') {
+                changeWord(1);
+            } else if (key === 'arrowleft') {
+                changeWord(-1);
+            } else if (key === ' ') {
+                speakCurrentWord();
+            }
+        });
+
+        window.onload = init;
+    </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>מבחן p מול q - נווה</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Rubik:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Rubik', sans-serif; background: #f0f9ff; min-height: 100vh; padding: 15px 10px; color: #0f172a; display: flex; flex-direction: column; align-items: center; }
+        .back-nav { width: 100%; max-width: 500px; margin-bottom: 8px; direction: rtl; }
+        .back-btn { text-decoration: none; color: #0284c7; font-weight: 700; }
+        .header { text-align: center; margin-bottom: 10px; direction: rtl; }
+        .header h1 { font-size: 1.5rem; color: #0284c7; font-weight: 700; }
+        .tip-box { background: #ffffff; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; width: 100%; max-width: 500px; border: 1px solid #bae6fd; text-align: center; font-size: 0.9rem; color: #0369a1; font-weight: 500; direction: rtl; }
+        .score-bar { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 10px 18px; border-radius: 14px; width: 100%; max-width: 500px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #bae6fd; font-weight: 700; color: #0369a1; direction: rtl; }
+        .quiz-card { background: #ffffff; border-radius: 20px; padding: 20px 15px; width: 100%; max-width: 500px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 2px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .nav-row { display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; gap: 10px; }
+        .nav-btn { background: #e0f2fe; color: #0369a1; border: 1.5px solid #bae6fd; border-radius: 10px; padding: 8px 14px; font-family: 'Rubik', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; }
+        .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .display-box { display: flex; align-items: center; justify-content: center; gap: 15px; background: #f0f9ff; width: 100%; padding: 15px 0; border-radius: 16px; border: 2px dashed #bae6fd; margin-bottom: 20px; }
+        .display-text { font-family: 'Fredoka', sans-serif; font-size: 3.2rem; font-weight: 700; color: #0284c7; direction: ltr; }
+        .audio-btn { background: #f59e0b; color: white; border: none; border-radius: 50%; width: 48px; height: 48px; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3); }
+        .prompt-text { font-size: 1.15rem; font-weight: 700; color: #334155; margin-bottom: 15px; direction: rtl; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+        .option-btn { background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 14px; padding: 16px 8px; font-family: 'Rubik', sans-serif; font-size: 1.25rem; font-weight: 700; color: #1e293b; cursor: pointer; }
+        .option-btn.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important; }
+        .option-btn.wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important; }
+        .results-box { display: none; background: #ffffff; border-radius: 20px; padding: 30px 20px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 2px solid #bae6fd; direction: rtl; }
+        .results-box h2 { color: #0284c7; font-size: 2rem; margin-bottom: 10px; }
+        .restart-btn { background: #0284c7; color: white; border: none; padding: 12px 28px; border-radius: 12px; font-family: 'Rubik', sans-serif; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="back-nav"><a href="index.html" class="back-btn">➡️ חזרה לנושאים</a></div>
+
+    <div class="header">
+        <h1>מבחן הבחנה: האות p מול האות q 🎯</h1>
+    </div>
+
+    <div class="tip-box">
+        💡 <b>זכור:</b> ב-<b>p</b> הבלון פונה ימינה 👉 | ב-<b>q</b> הבלון פונה שמאלה 👈
+    </div>
+
+    <div class="score-bar" id="scoreBar">
+        <span id="questionCounter">שאלה 1 מתוך 15</span>
+        <span id="scoreTracker">⭐ ניקוד: 0</span>
+    </div>
+
+    <div class="quiz-card" id="quizCard">
+        <div class="nav-row">
+            <button class="nav-btn" id="prevBtn" onclick="navigateQuestion(-1)">➡️ הקודם</button>
+            <button class="nav-btn" id="nextBtn" onclick="navigateQuestion(1)">הבא ⬅️</button>
+        </div>
+
+        <div class="display-box">
+            <span class="display-text" id="displayText">queen</span>
+            <button class="audio-btn" onclick="playCurrentAudio()" title="השמע מילה">🔊</button>
+        </div>
+
+        <div class="prompt-text" id="promptText">איזו אות מופיעה במילה הזו?</div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+    <div class="results-box" id="resultsBox">
+        <h2>כל הכבוד נווה! 🌟</h2>
+        <p id="finalScoreText" style="margin-bottom:15px; font-weight:700; color:#334155;"></p>
+        <button class="restart-btn" onclick="startQuiz()">להתחיל מחדש 🔄</button>
+    </div>
+
+    <script>
+        const pqWords = [
+            { word: 'queen', target: 'q' },
+            { word: 'pen', target: 'p' },
+            { word: 'quick', target: 'q' },
+            { word: 'park', target: 'p' },
+            { word: 'quiz', target: 'q' },
+            { word: 'pig', target: 'p' },
+            { word: 'quilt', target: 'q' },
+            { word: 'pizza', target: 'p' },
+            { word: 'quiet', target: 'q' },
+            { word: 'party', target: 'p' },
+            { word: 'quarter', target: 'q' },
+            { word: 'plane', target: 'p' },
+            { word: 'question', target: 'q' },
+            { word: 'puppy', target: 'p' },
+            { word: 'quack', target: 'q' }
+        ];
+
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let answeredQuestions = {};
+        let selectedVoice = null;
+        let navTimer = null;
+
+        function loadVoices() {
+            const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+            if (voices.length > 0) {
+                let defaultIdx = 0;
+                voices.forEach((v, i) => {
+                    const lower = v.name.toLowerCase();
+                    if (lower.includes('female') || lower.includes('samantha') || lower.includes('zira') || lower.includes('victoria') || lower.includes('google us english')) {
+                        defaultIdx = i;
+                    }
+                });
+                selectedVoice = voices[defaultIdx];
+            }
+        }
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        function playCurrentAudio() {
+            const item = currentQuestions[currentIndex];
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(item.word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            if (selectedVoice) utterance.voice = selectedVoice;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function shuffle(array) {
+            return [...array].sort(() => Math.random() - 0.5);
+        }
+
+        function startQuiz() {
+            currentQuestions = shuffle(pqWords);
+            currentIndex = 0;
+            score = 0;
+            answeredQuestions = {};
+
+            document.getElementById('quizCard').style.display = 'flex';
+            document.getElementById('scoreBar').style.display = 'flex';
+            document.getElementById('resultsBox').style.display = 'none';
+
+            loadVoices();
+            showQuestion();
+        }
+
+        function showQuestion() {
+            clearTimeout(navTimer);
+            const item = currentQuestions[currentIndex];
+
+            document.getElementById('questionCounter').textContent = `שאלה ${currentIndex + 1} מתוך ${currentQuestions.length}`;
+            document.getElementById('scoreTracker').textContent = `⭐ ניקוד: ${score}`;
+            document.getElementById('displayText').textContent = item.word;
+
+            document.getElementById('prevBtn').disabled = (currentIndex === 0);
+            document.getElementById('nextBtn').disabled = false;
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = '';
+
+            const options = [
+                { letter: 'p', label: 'האות p (פי)' },
+                { letter: 'q', label: 'האות q (קיו)' }
+            ];
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt.label;
+
+                if (answeredQuestions[currentIndex]) {
+                    const prevChoice = answeredQuestions[currentIndex];
+                    if (opt.letter === item.target) {
+                        btn.classList.add('correct');
+                    } else if (opt.letter === prevChoice.selected) {
+                        btn.classList.add('wrong');
+                    }
+                } else {
+                    btn.onclick = () => checkAnswer(btn, opt.letter);
+                }
+
+                grid.appendChild(btn);
+            });
+
+            playCurrentAudio();
+        }
+
+        function checkAnswer(selectedBtn, selectedLetter) {
+            if (answeredQuestions[currentIndex]) return;
+
+            const item = currentQuestions[currentIndex];
+            const isCorrect = (selectedLetter === item.target);
+
+            answeredQuestions[currentIndex] = { selected: selectedLetter, isCorrect: isCorrect };
+
+            const allBtns = document.querySelectorAll('.option-btn');
+
+            if (isCorrect) {
+                selectedBtn.classList.add('correct');
+                score += 10;
+                document.getElementById('scoreTracker').textContent = `⭐ ניקוד: ${score}`;
+            } else {
+                selectedBtn.classList.add('wrong');
+                allBtns.forEach(btn => {
+                    if ((btn.textContent.includes('p') && item.target === 'p') || (btn.textContent.includes('q') && item.target === 'q')) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            navTimer = setTimeout(() => {
+                navigateQuestion(1);
+            }, 1200);
+        }
+
+        function navigateQuestion(direction) {
+            clearTimeout(navTimer);
+            const newIndex = currentIndex + direction;
+            if (newIndex >= 0 && newIndex < currentQuestions.length) {
+                currentIndex = newIndex;
+                showQuestion();
+            } else if (newIndex >= currentQuestions.length) {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('quizCard').style.display = 'none';
+            document.getElementById('scoreBar').style.display = 'none';
+            document.getElementById('resultsBox').style.display = 'block';
+
+            document.getElementById('finalScoreText').textContent = `הצלחת להשיג ${score} מתוך ${currentQuestions.length * 10} נקודות!`;
+
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+            }
+        }
+
+        startQuiz();
+    </script>
+</body>
+</html>

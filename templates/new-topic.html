@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>נושא חדש - נווה</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/nave.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="../assets/nave.js"></script>
+<script>
+/* TEACHING TOPIC (no paper test).
+   1. Save a copy of this file inside the topics folder, for example topics/letter-y.html
+   2. Change the title and the words below.
+   3. Add one line for it in the topics list in assets/registry.js */
+NaveQuiz.start({
+  id: 'letter-y',           /* a short unique name, no spaces */
+  title: 'האות Y',
+  back: 'index.html',
+  print: false,             /* topics have no printed test; delete this line to add one */
+  words: [
+    { en: 'yes', he: 'כן', icon: '👍' },
+    { en: 'yam', he: 'בטטה', icon: '🍠' }
+  ]
+});
+</script>
+</body>
+</html>

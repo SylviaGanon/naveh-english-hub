@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>לומדים תנועות קצרות - נווה</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Rubik:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Rubik', sans-serif; background: #f0f9ff; padding: 15px; color: #0f172a; display: flex; flex-direction: column; align-items: center; }
+        .back-nav { width: 100%; max-width: 500px; margin-bottom: 12px; }
+        .back-btn { text-decoration: none; color: #0284c7; font-weight: 700; }
+        .header { text-align: center; margin-bottom: 15px; }
+        .header h1 { font-family: 'Fredoka', sans-serif; font-size: 1.8rem; color: #0284c7; }
+        .vowel-nav { display: flex; gap: 6px; width: 100%; max-width: 500px; margin-bottom: 15px; }
+        .vowel-tab { flex: 1; padding: 12px 0; border: 2px solid #bae6fd; background: #ffffff; border-radius: 14px; font-family: 'Fredoka', sans-serif; font-size: 1.4rem; font-weight: 700; color: #0369a1; cursor: pointer; text-align: center; }
+        .vowel-tab.active { background: #0284c7; color: white; border-color: #0284c7; }
+        .card-container { width: 100%; max-width: 500px; }
+        .v-card { background: white; border-radius: 20px; padding: 20px; border: 2px solid #cbd5e1; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.05); }
+        .vowel-title { font-family: 'Fredoka', sans-serif; font-size: 4rem; color: #0284c7; direction: ltr; margin-bottom: 5px; }
+        .hebrew-sound { font-size: 1.5rem; font-weight: 700; color: #d97706; margin-bottom: 8px; }
+        .gesture-box { background: #fffbeb; border: 2px dashed #f59e0b; padding: 12px; border-radius: 14px; font-weight: 700; color: #b45309; margin-bottom: 15px; font-size: 1.05rem; }
+        .cvc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .cvc-card { background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 10px 5px; text-align: center; cursor: pointer; }
+        .cvc-word { font-family: 'Fredoka', sans-serif; font-size: 1.5rem; color: #0284c7; direction: ltr; }
+        .cvc-hebrew { font-size: 0.85rem; color: #475569; font-weight: 700; }
+        .audio-btn { background: #f59e0b; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 1rem; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="back-nav"><a href="index.html" class="back-btn">➡️ חזרה למרכז</a></div>
+    <div class="header">
+        <h1>התנועות הקצרות של נווה 🔤</h1>
+    </div>
+    <div class="vowel-nav" id="vowelNav"></div>
+    <div class="card-container" id="cardContainer"></div>
+
+    <script>
+        const vowels = [
+            { letter: 'Aa', sound: 'צליל: אַ (כמו אבא)', gesture: '🍎 תנועת תפוח: קח ביס גדול מתפוח! ("אַ-אַ-Apple")', cvc: [{ word: 'cat', hebrew: 'חתול 🐱' }, { word: 'hat', hebrew: 'כובע 🎩' }, { word: 'bag', hebrew: 'תיק 🎒' }], sentence: 'The cat has a hat' },
+            { letter: 'Ee', sound: 'צליל: אֶ (כמו אגס)', gesture: '🐘 תנועת פיל: שים יד מאחורי האוזן! ("אֶ-אֶ-Elephant")', cvc: [{ word: 'pen', hebrew: 'עט 🖊️' }, { word: 'red', hebrew: 'אדום 🔴' }, { word: 'bed', hebrew: 'מיטה 🛏️' }], sentence: 'A red pen on the bed' },
+            { letter: 'Ii', sound: 'צליל: אִי (קצר ועדין)', gesture: '👃 תנועת גירוד: גרד את האף! ("אִי-אִי-It")', cvc: [{ word: 'pig', hebrew: 'חזיר 🐷' }, { word: 'pin', hebrew: 'סיכה 📌' }, { word: 'big', hebrew: 'גדול 🐘' }], sentence: 'The big pig is happy' },
+            { letter: 'Oo', sound: 'צליל: אוֹ / אָ (פה עגול)', gesture: '🐶 תנועת כלב: עשה עיגול ענקי עם הידיים! ("אוֹ-אוֹ-Dog")', cvc: [{ word: 'dog', hebrew: 'כלב 🐶' }, { word: 'hot', hebrew: 'חם 🔥' }, { word: 'box', hebrew: 'קופסה 📦' }], sentence: 'The hot dog in a box' },
+            { letter: 'Uu', sound: 'צליל: אַ (כמו sun)', gesture: '☀️ תנועת שמש: פתח מטרייה דמיונית למעלה! ("אַ-אַ-Sun")', cvc: [{ word: 'sun', hebrew: 'שמש ☀️' }, { word: 'cup', hebrew: 'ספל ☕' }, { word: 'bus', hebrew: 'אוטובוס 🚌' }], sentence: 'The bus in the sun' }
+        ];
+
+        let selectedIdx = 0;
+
+        function renderNav() {
+            const nav = document.getElementById('vowelNav');
+            nav.innerHTML = '';
+            vowels.forEach((v, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `vowel-tab ${idx === selectedIdx ? 'active' : ''}`;
+                btn.textContent = v.letter[0];
+                btn.onclick = () => selectVowel(idx);
+                nav.appendChild(btn);
+            });
+        }
+
+        function selectVowel(idx) {
+            selectedIdx = idx;
+            renderNav();
+            renderCard();
+        }
+
+        function renderCard() {
+            const container = document.getElementById('cardContainer');
+            const item = vowels[selectedIdx];
+            container.innerHTML = `
+                <div class="v-card">
+                    <div class="vowel-title">${item.letter}</div>
+                    <div class="hebrew-sound">${item.sound}</div>
+                    <div class="gesture-box">${item.gesture}</div>
+                    <div class="cvc-grid">
+                        ${item.cvc.map(c => `
+                            <div class="cvc-card" onclick="playAudio('${c.word}')">
+                                <div class="cvc-word">${c.word}</div>
+                                <div class="cvc-hebrew">${c.hebrew}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button class="audio-btn" onclick="playAudio('${item.sentence}')">🔊 השמע משפט: "${item.sentence}"</button>
+                </div>
+            `;
+            playAudio(item.letter[0]);
+        }
+
+        function playAudio(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.75;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        renderNav();
+        renderCard();
+    </script>
+</body>
+</html>

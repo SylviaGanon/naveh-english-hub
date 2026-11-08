@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>תרגול תנועות קצרות - נווה</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Rubik:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Rubik', sans-serif; background: #f0f9ff; color: #0f172a; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 15px; }
+        .back-nav { width: 100%; max-width: 500px; margin-bottom: 8px; }
+        .back-btn { text-decoration: none; color: #0284c7; font-weight: 700; }
+        
+        .voice-bar { width: 100%; max-width: 500px; background: #ffffff; border: 1.5px solid #bae6fd; border-radius: 12px; padding: 8px 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .voice-label { font-size: 0.85rem; font-weight: 700; color: #0369a1; white-space: nowrap; }
+        .voice-select { flex: 1; padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-family: 'Rubik', sans-serif; font-size: 0.85rem; color: #0f172a; direction: ltr; }
+
+        .tab-menu { display: flex; gap: 6px; width: 100%; max-width: 500px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 12px 4px; border: 2px solid #bae6fd; background: #ffffff; border-radius: 12px; font-weight: 700; color: #0369a1; cursor: pointer; text-align: center; font-size: 0.95rem; }
+        .tab-btn.active { background: #0284c7; color: white; border-color: #0284c7; }
+        .section-panel { width: 100%; max-width: 500px; display: none; }
+        .section-panel.active { display: block; }
+        
+        .sub-tab-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .sub-btn { flex: 1; padding: 8px; border: 2px solid #a7f3d0; background: #ffffff; border-radius: 10px; font-weight: 700; color: #047857; cursor: pointer; text-align: center; }
+        .sub-btn.active { background: #10b981; color: white; border-color: #10b981; }
+        .quiz-card { background: white; border-radius: 20px; padding: 25px 20px; border: 2px solid #cbd5e1; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.05); }
+        .q-progress { font-size: 0.9rem; font-weight: 700; color: #0284c7; margin-bottom: 8px; }
+        .opt-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 15px; }
+        .opt-btn { background: #f8fafc; border: 2px solid #cbd5e1; padding: 12px 0; border-radius: 12px; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 1.5rem; cursor: pointer; color: #0284c7; }
+        .opt-btn.correct { background: #10b981; color: white; border-color: #10b981; }
+        .opt-btn.wrong { background: #ef4444; color: white; border-color: #ef4444; }
+        .input-box { width: 90%; padding: 12px; font-size: 1.6rem; font-weight: 700; text-align: center; border: 2px solid #0284c7; border-radius: 12px; margin: 15px 0; direction: ltr; font-family: 'Fredoka', sans-serif; }
+        .action-btn { background: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 1rem; width: 100%; }
+        
+        .flash-card { font-family: 'Fredoka', sans-serif; font-size: 3.5rem; color: #0284c7; background: #e0f2fe; border-radius: 16px; padding: 25px; margin: 15px 0; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="back-nav"><a href="index.html" class="back-btn">➡️ חזרה לנושאי הלימוד</a></div>
+    
+    <div class="voice-bar">
+        <span class="voice-label">🗣️ בחירת קול:</span>
+        <select id="voiceSelect" class="voice-select" onchange="setVoice()"></select>
+    </div>
+
+    <div class="tab-menu">
+        <button class="tab-btn active" onclick="switchSection('testSection')">1. מבחן תנועות (15 שאלות)</button>
+        <button class="tab-btn" onclick="switchSection('dailySection')">2. אימון יומי</button>
+    </div>
+
+    <!-- PANEL 1: 2-TIER TEST MODE (15 QUESTIONS) -->
+    <div id="testSection" class="section-panel active">
+        <div class="sub-tab-row">
+            <button class="sub-btn active" onclick="switchTestMode('mc')">שלב 1: בחירת תנועה</button>
+            <button class="sub-btn" onclick="switchTestMode('type')">שלב 2: הקלדת המילה</button>
+        </div>
+        <div class="quiz-card" id="quizCard"></div>
+    </div>
+
+    <!-- PANEL 2: DAILY SELF-PRACTICE MODE -->
+    <div id="dailySection" class="section-panel">
+        <div class="quiz-card" style="border-color: #f59e0b; background: #fffbeb;">
+            <div style="font-size: 1.2rem; font-weight: 700; color: #b45309;">⚡ אימון יומי קצר של 5 דקות!</div>
+            <p style="font-weight:700; margin-top:5px; color:#475569;">לחץ על הקלף כדי לגלות את התרגום והצליל:</p>
+            <div class="flash-card" id="flashCard" onclick="flipFlashCard()">cat</div>
+            <button class="action-btn" style="background:#f59e0b;" onclick="nextFlashCard()">הקלף הבא ⬅️</button>
+        </div>
+    </div>
+
+    <script>
+        const vowelQuestions = [
+            { word: 'cat', missing: 'c _ t', vowel: 'a', hebrew: 'חתול 🐱' },
+            { word: 'pen', missing: 'p _ n', vowel: 'e', hebrew: 'עט 🖊️' },
+            { word: 'pig', missing: 'p _ g', vowel: 'i', hebrew: 'חזיר 🐷' },
+            { word: 'dog', missing: 'd _ g', vowel: 'o', hebrew: 'כלב 🐶' },
+            { word: 'sun', missing: 's _ n', vowel: 'u', hebrew: 'שמש ☀️' },
+            { word: 'hat', missing: 'h _ t', vowel: 'a', hebrew: 'כובע 🎩' },
+            { word: 'bed', missing: 'b _ d', vowel: 'e', hebrew: 'מיטה 🛏️' },
+            { word: 'pin', missing: 'p _ n', vowel: 'i', hebrew: 'סיכה 📌' },
+            { word: 'box', missing: 'b _ x', vowel: 'o', hebrew: 'קופסה 📦' },
+            { word: 'bus', missing: 'b _ s', vowel: 'u', hebrew: 'אוטובוס 🚌' },
+            { word: 'bag', missing: 'b _ g', vowel: 'a', hebrew: 'תיק 🎒' },
+            { word: 'red', missing: 'r _ d', vowel: 'e', hebrew: 'אדום 🔴' },
+            { word: 'big', missing: 'b _ g', vowel: 'i', hebrew: 'גדול 🐘' },
+            { word: 'hot', missing: 'h _ t', vowel: 'o', hebrew: 'חם 🔥' },
+            { word: 'cup', missing: 'c _ p', vowel: 'u', hebrew: 'ספל ☕' }
+        ];
+
+        let availableVoices = [];
+        let selectedVoice = null;
+
+        function loadVoices() {
+            availableVoices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+            const voiceSelect = document.getElementById('voiceSelect');
+            voiceSelect.innerHTML = '';
+
+            if (availableVoices.length === 0) {
+                const option = document.createElement('option');
+                option.textContent = 'ברירת מחדל של המכשיר';
+                voiceSelect.appendChild(option);
+                return;
+            }
+
+            let defaultFemaleIndex = 0;
+            availableVoices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+
+                const lowerName = voice.name.toLowerCase();
+                if (lowerName.includes('female') || lowerName.includes('samantha') || lowerName.includes('zira') || lowerName.includes('victoria') || lowerName.includes('karen') || lowerName.includes('google us english')) {
+                    defaultFemaleIndex = index;
+                }
+            });
+
+            voiceSelect.selectedIndex = defaultFemaleIndex;
+            selectedVoice = availableVoices[defaultFemaleIndex];
+        }
+
+        function setVoice() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            selectedVoice = availableVoices[voiceSelect.value];
+        }
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        function playAudio(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            if (selectedVoice) utterance.voice = selectedVoice;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function switchSection(secId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(secId).classList.add('active');
+            if(secId === 'testSection') renderTest();
+            if(secId === 'dailySection') renderDaily();
+        }
+
+        let testMode = 'mc';
+        let qIdx = 0;
+
+        function switchTestMode(m) {
+            testMode = m;
+            qIdx = 0;
+            document.querySelectorAll('.sub-btn').forEach((b, i) => {
+                b.classList.toggle('active', (i === 0 && m === 'mc') || (i === 1 && m === 'type'));
+            });
+            renderTest();
+        }
+
+        function renderTest() {
+            const container = document.getElementById('quizCard');
+            const item = vowelQuestions[qIdx];
+
+            if (testMode === 'mc') {
+                const vowelsList = ['a', 'e', 'i', 'o', 'u'];
+
+                container.innerHTML = `
+                    <div class="q-progress">שאלה ${qIdx + 1} מתוך 15</div>
+                    <div style="font-size:1.3rem; font-weight:700; color:#0369a1; margin-bottom:5px;">איזו תנועה חסרה במילה?</div>
+                    <div style="font-size:1.2rem; font-weight:700; color:#334155; margin-bottom:10px;">(${item.hebrew})</div>
+                    <div style="font-family:'Fredoka', sans-serif; font-size:3.5rem; font-weight:700; color:#0284c7; direction:ltr; margin-bottom:10px;">${item.missing}</div>
+                    <button class="action-btn" style="background:#f59e0b; width:auto; padding:8px 16px; margin-bottom:15px;" onclick="playAudio('${item.word}')">🔊 השמע מילה</button>
+                    <div class="opt-grid">
+                        ${vowelsList.map(v => `<button class="opt-btn" onclick="checkChoice(this, '${v}', '${item.vowel}', '${item.word}')">${v}</button>`).join('')}
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="q-progress">שאלה ${qIdx + 1} מתוך 15</div>
+                    <div style="font-size:1.3rem; font-weight:700; color:#0369a1; margin-bottom:5px;">כתוב את המילה המלאה באנגלית:</div>
+                    <div style="font-size:1.5rem; font-weight:700; color:#334155; margin-bottom:10px;">${item.hebrew}</div>
+                    <button class="action-btn" style="background:#f59e0b; width:auto; padding:8px 16px; margin-bottom:10px;" onclick="playAudio('${item.word}')">🔊 השמע מילה</button>
+                    <br>
+                    <input type="text" id="typeInput" class="input-box" placeholder="כתוב מילה..." autofocus />
+                    <button class="action-btn" onclick="checkType('${item.word}')">בדוק תשובה ✨</button>
+                `;
+            }
+        }
+
+        function checkChoice(btn, selected, correct, fullWord) {
+            if (selected === correct) {
+                btn.classList.add('correct');
+                playAudio(fullWord);
+                confetti({ particleCount: 30, spread: 50 });
+                setTimeout(nextQuestion, 1000);
+            } else {
+                btn.classList.add('wrong');
+            }
+        }
+
+        function checkType(correct) {
+            const input = document.getElementById('typeInput').value.trim().toLowerCase();
+            if (input === correct.toLowerCase()) {
+                playAudio(correct);
+                confetti({ particleCount: 30, spread: 50 });
+                setTimeout(nextQuestion, 1000);
+            } else {
+                alert('נסה שוב! המילה הנכונה היא: ' + correct);
+            }
+        }
+
+        function nextQuestion() {
+            qIdx = (qIdx + 1) % vowelQuestions.length;
+            renderTest();
+        }
+
+        let dailyIdx = 0;
+        let isFlipped = false;
+
+        function renderDaily() {
+            isFlipped = false;
+            const el = document.getElementById('flashCard');
+            el.textContent = vowelQuestions[dailyIdx].word;
+            el.style.background = '#e0f2fe';
+            el.style.color = '#0284c7';
+            playAudio(vowelQuestions[dailyIdx].word);
+        }
+
+        function flipFlashCard() {
+            const el = document.getElementById('flashCard');
+            if (!isFlipped) {
+                el.textContent = vowelQuestions[dailyIdx].hebrew;
+                el.style.background = '#fef3c7';
+                el.style.color = '#b45309';
+            } else {
+                el.textContent = vowelQuestions[dailyIdx].word;
+                el.style.background = '#e0f2fe';
+                el.style.color = '#0284c7';
+                playAudio(vowelQuestions[dailyIdx].word);
+            }
+            isFlipped = !isFlipped;
+        }
+
+        function nextFlashCard() {
+            dailyIdx = (dailyIdx + 1) % vowelQuestions.length;
+            renderDaily();
+        }
+
+        loadVoices();
+        renderTest();
+    </script>
+</body>
+</html>

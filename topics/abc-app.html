@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ה-ABC של נווה - תצוגה מלאה</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Rubik:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Rubik', sans-serif; background: #f0f9ff; padding: 15px 10px; color: #0f172a; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .back-nav { width: 100%; max-width: 600px; margin-bottom: 10px; direction: rtl; }
+        .back-btn { text-decoration: none; color: #0284c7; font-weight: 700; font-size: 0.95rem; }
+        .header { text-align: center; margin-bottom: 12px; direction: rtl; width: 100%; max-width: 600px; }
+        .header h1 { font-size: 1.6rem; color: #0284c7; font-weight: 700; }
+        .voice-selector-box { margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; color: #475569; }
+        select { padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; font-family: 'Rubik', sans-serif; font-size: 0.85rem; color: #0f172a; max-width: 220px; }
+        
+        .letters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px; width: 100%; max-width: 600px; direction: ltr; }
+        .letter-card { background: #ffffff; border-radius: 12px; padding: 8px 6px; box-shadow: 0 3px 8px rgba(0,0,0,0.05); border: 1.5px solid #bae6fd; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .letter-display { font-family: 'Fredoka', sans-serif; font-size: 1.8rem; font-weight: 700; color: #0284c7; background: #e0f2fe; width: 100%; padding: 4px 0; border-radius: 8px; margin-bottom: 6px; line-height: 1.1; direction: ltr; }
+        .info-box { width: 100%; background: #f8fafc; border-radius: 6px; padding: 4px 2px; margin-bottom: 6px; min-height: 36px; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; direction: rtl; }
+        .info-text { font-size: 0.75rem; font-weight: 700; color: #0f172a; line-height: 1.1; }
+        .action-buttons { display: flex; justify-content: space-between; gap: 4px; width: 100%; direction: ltr; }
+        .btn { flex: 1; padding: 6px 0; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+        .btn-name { background-color: #3b82f6; color: white; }
+        .btn-sound-text { background-color: #10b981; color: white; }
+        .btn-audio { background-color: #f59e0b; color: white; }
+        .btn:active { opacity: 0.8; transform: scale(0.92); }
+    </style>
+</head>
+<body>
+    <div class="back-nav"><a href="index.html" class="back-btn">➡️ חזרה לנושאי הלימוד</a></div>
+
+    <div class="header">
+        <h1>כל אותיות ה-ABC 🔤</h1>
+        <div class="voice-selector-box">
+            <label for="voiceSelect">🗣️ בחירת קול:</label>
+            <select id="voiceSelect" onchange="setVoice()"></select>
+        </div>
+    </div>
+
+    <div class="letters-grid" id="lettersGrid"></div>
+
+    <script>
+        const letters = [
+            { big: 'A', small: 'a', name: 'איי', soundText: 'אַ / איי' },
+            { big: 'B', small: 'b', name: 'בִּי', soundText: 'בּ' },
+            { big: 'C', small: 'c', name: 'סִי', soundText: 'קּ / סּ' },
+            { big: 'D', small: 'd', name: 'דִי', soundText: 'דּ' },
+            { big: 'E', small: 'e', name: 'אִי', soundText: 'אֶ' },
+            { big: 'F', small: 'f', name: 'אֶף', soundText: 'ף / פֿ' },
+            { big: 'G', small: 'g', name: 'גִ\'י', soundText: 'גּ' },
+            { big: 'H', small: 'h', name: 'אֵיְיְטְשׁ', soundText: 'הּ' },
+            { big: 'I', small: 'i', name: 'אַי', soundText: 'אִי / אַי' },
+            { big: 'J', small: 'j', name: 'גֵ\'יי', soundText: 'ג\' (ג\'ינס)' },
+            { big: 'K', small: 'k', name: 'קֵיי', soundText: 'קּ' },
+            { big: 'L', small: 'l', name: 'אֵל', soundText: 'לּ' },
+            { big: 'M', small: 'm', name: 'אֶם', soundText: 'מּ' },
+            { big: 'N', small: 'n', name: 'אֶן', soundText: 'נּ' },
+            { big: 'O', small: 'o', name: 'אוֹ', soundText: 'אוֹ / אָ' },
+            { big: 'P', small: 'p', name: 'פִּי', soundText: 'פּ' },
+            { big: 'Q', small: 'q', name: 'קְיוּ', soundText: 'קְווּ (KW)' },
+            { big: 'R', small: 'r', name: 'אָר', soundText: 'רּ' },
+            { big: 'S', small: 's', name: 'אֶס', soundText: 'סּ' },
+            { big: 'T', small: 't', name: 'טִי', soundText: 'טּ' },
+            { big: 'U', small: 'u', name: 'יוּ', soundText: 'אַ / יוּ' },
+            { big: 'V', small: 'v', name: 'וִי', soundText: 'וְ' },
+            { big: 'W', small: 'w', name: 'דָאבְלְיוּ', soundText: 'ווּ (W)' },
+            { big: 'X', small: 'x', name: 'אֶקְס', soundText: 'קְס' },
+            { big: 'Y', small: 'y', name: 'וַואי', soundText: 'יּ' },
+            { big: 'Z', small: 'z', name: 'זֶד / זִי', soundText: 'זּ' }
+        ];
+
+        let availableVoices = [];
+        let selectedVoice = null;
+
+        function loadVoices() {
+            availableVoices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+            const voiceSelect = document.getElementById('voiceSelect');
+            voiceSelect.innerHTML = '';
+
+            if (availableVoices.length === 0) {
+                const option = document.createElement('option');
+                option.textContent = 'קול ברירת מחדל';
+                voiceSelect.appendChild(option);
+                return;
+            }
+
+            let defaultFemaleIndex = 0;
+            availableVoices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+
+                const lowerName = voice.name.toLowerCase();
+                if (lowerName.includes('female') || lowerName.includes('samantha') || lowerName.includes('zira') || lowerName.includes('victoria') || lowerName.includes('karen') || lowerName.includes('google us english')) {
+                    defaultFemaleIndex = index;
+                }
+            });
+
+            voiceSelect.selectedIndex = defaultFemaleIndex;
+            selectedVoice = availableVoices[defaultFemaleIndex];
+        }
+
+        function setVoice() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            selectedVoice = availableVoices[voiceSelect.value];
+        }
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        function renderLetters() {
+            const grid = document.getElementById('lettersGrid');
+            grid.innerHTML = '';
+
+            letters.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'letter-card';
+                card.innerHTML = `
+                    <div class="letter-display">${item.big} ${item.small}</div>
+                    <div class="info-box" id="infoBox-${index}">
+                        <span class="info-text" id="infoText-${index}"></span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-name" onclick="showName(${index})" title="שם האות">🏷️</button>
+                        <button class="btn btn-sound-text" onclick="showSoundText(${index})" title="צליל האות">🗣️</button>
+                        <button class="btn btn-audio" onclick="playAudioSound('${item.big}')" title="השמע צליל">🔊</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function showName(index) {
+            document.getElementById(`infoText-${index}`).textContent = letters[index].name;
+        }
+
+        function showSoundText(index) {
+            document.getElementById(`infoText-${index}`).textContent = letters[index].soundText;
+        }
+
+        function playAudioSound(letter) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(letter);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            if (selectedVoice) utterance.voice = selectedVoice;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        loadVoices();
+        renderLetters();
+    </script>
+</body>
+</html>
