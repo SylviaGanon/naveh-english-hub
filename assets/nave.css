@@ -113,3 +113,33 @@ h3 a{color:var(--blue);font-size:.9rem}
   .paper{margin:0}
   .sheet{box-shadow:none;min-height:calc(100cqw*1.414 - 2mm)}
 }
+
+/* Vowel pages */
+.slot{display:flex;justify-content:center;gap:.12em;font-size:4.6rem;font-weight:600;line-height:1.2;margin:6px 0}
+.slot .gap{min-width:.7em;border-bottom:4px dashed #cbd5e1;color:#cbd5e1}
+.slot .gap.ok{color:var(--blue);border-bottom:4px solid var(--blue)}
+.slot .gap.no{color:var(--bad);border-bottom:4px solid var(--bad)}
+.vows{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+.opt.vb{font:600 1.9rem 'Fredoka',sans-serif;min-height:68px}
+.opt.vb.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.bases{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.chip{min-height:44px;border:1px solid var(--line);border-radius:12px;background:#fff;font:600 1.05rem 'Fredoka',sans-serif;color:var(--ink)}
+.chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.center{text-align:center}
+@media (min-width:760px){.slot{font-size:5.6rem}.bases{grid-template-columns:repeat(6,1fr)}}
+
+/* Sound pages */
+.bigw{text-align:center;font-weight:600;line-height:1.2;min-height:1.3em;overflow-wrap:anywhere;margin:8px 0 4px}
+.hl{color:#c2410c}
+.note{color:var(--mute);font-size:.95rem;margin-bottom:4px}
+.wbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.opt.wb{font:600 1.5rem 'Fredoka',sans-serif;min-height:64px}
+.opt.wb.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.rates{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.rt{min-height:64px;border:2px solid var(--line);border-radius:16px;background:#fff;font-size:1rem;font-weight:700;padding:4px}
+.rt.good{background:var(--ok-l);border-color:var(--ok);color:var(--ok)}
+.rt.mid{background:#fef3c7;border-color:#d97706;color:#92400e}
+.rt.bad{background:var(--bad-l);border-color:var(--bad);color:var(--bad)}
+.chips.mid span{background:#fef3c7;color:#92400e}
+.chips.bad span{background:var(--bad-l);color:var(--bad)}
+@media (min-width:760px){.wbtns{grid-template-columns:repeat(3,1fr)}}
