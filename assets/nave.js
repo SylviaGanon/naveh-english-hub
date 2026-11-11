@@ -263,19 +263,24 @@
 
   /* ---------- Menu pages, built from assets/registry.js ---------- */
   const REG = () => window.NAVE_REGISTRY || { topics: [], quizzes: [] };
-  const row = (it, base) => h('a', { class: 'item', href: base + it.href },
-    h('div', {}, it.title, it.tag ? h('span', { class: 'tag' }, it.tag) : null),
+  const row = (it, base) => h('a', { class: 'item' + (it.soon ? ' soon' : '') + (it.now ? ' now' : ''), href: base + it.href },
+    h('div', {}, it.n ? h('span', { class: 'num' }, it.n) : null, it.title, it.tag ? h('span', { class: 'tag' }, it.tag) : null),
     h('small', { style: 'unicode-bidi:plaintext' }, it.sub || ''));
+
+  /* Only weeks up to R.currentWeek are shown, newest first. To open the next week, raise currentWeek in registry.js */
+  const visibleQuizzes = R => R.quizzes.filter(q => R.currentWeek == null || q.week <= R.currentWeek).sort((x, y) => y.week - x.week);
 
   const NaveIndex = {
     home() {
-      const R = REG(), latest = R.quizzes[0];
+      const R = REG(), qs = visibleQuizzes(R), cur = qs[0], older = qs.slice(1);
       document.getElementById('app').replaceChildren(h('main', { class: 'wrap plain' },
         h('h1', {}, 'היי נווה 👋'),
-        latest ? h('a', { class: 'hero', href: latest.href + '#review' }, 'חזרה יומית', h('small', {}, `${latest.title} ${latest.sub || ''}`)) : null,
-        h('h3', {}, 'מבחנים שבועיים', h('a', { href: 'quizzes/index.html' }, 'הכל')),
-        ...R.quizzes.slice(0, 3).map(i => row(i, '')),
-        h('h3', {}, 'נושאי לימוד', h('a', { href: 'topics/index.html' }, 'הכל')),
+        cur ? h('a', { class: 'hero', href: cur.href + '#review' }, 'חזרה יומית', h('small', {}, `${cur.title} ${cur.sub || ''}`)) : null,
+        cur ? h('h3', {}, 'מבחן השבוע') : null,
+        cur ? row({ ...cur, now: true, tag: 'השבוע' }, '') : null,
+        older.length ? h('h3', {}, 'מבחנים קודמים', h('a', { href: 'quizzes/index.html' }, 'הכל')) : null,
+        ...older.slice(0, 3).map(i => row(i, '')),
+        h('h3', {}, 'נושאי לימוד'),
         ...R.topics.map(i => row(i, ''))));
     },
     list(section) {

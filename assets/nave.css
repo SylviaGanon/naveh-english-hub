@@ -143,3 +143,8 @@ h3 a{color:var(--blue);font-size:.9rem}
 .chips.mid span{background:#fef3c7;color:#92400e}
 .chips.bad span{background:var(--bad-l);color:var(--bad)}
 @media (min-width:760px){.wbtns{grid-template-columns:repeat(3,1fr)}}
+
+/* Numbered menu */
+.num{display:inline-block;min-width:1.9em;color:var(--blue);font-weight:700}
+.item.soon{background:#f1f5f9;color:#475569}
+.item.now{border-color:var(--blue);border-width:2px}
