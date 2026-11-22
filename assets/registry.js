@@ -14,6 +14,8 @@ window.NAVE_REGISTRY = {
     { week: 7, title: 'שבוע 7', sub: 'CVC', href: 'quizzes/week7-cvc.html' },
     { week: 8, title: 'שבוע 8', sub: 'CVC', href: 'quizzes/week8-cvc.html' },
     { week: 9, title: 'שבוע 9', sub: 'CVC', href: 'quizzes/week9-cvc.html' },
+    { week: 10, title: 'שבוע 10', sub: 'CVC', href: 'quizzes/week10-cvc.html' },
+    { week: 11, title: 'שבוע 11', sub: 'CVC', href: 'quizzes/week11-cvc.html' },
   ],
   topics: [
     { n: 1, title: 'אותיות ה-ABC', sub: 'ABC', href: 'topics/abc-app.html' },
