@@ -3,7 +3,7 @@
    and the daily-review button opens it. Weeks above currentWeek stay hidden.
    ADD A NEW PAGE: copy a template, then add one line below. Quizzes need a week number. Topics have n = their place in the order. */
 window.NAVE_REGISTRY = {
-  currentWeek: 3,
+  currentWeek: 4,
   quizzes: [
     { week: 1, title: 'שבוע 1', sub: 'Meet Emma', href: 'quizzes/meet-emma.html' },
     { week: 2, title: 'שבוע 2', sub: 'CVC', href: 'quizzes/week2-cvc.html' },
